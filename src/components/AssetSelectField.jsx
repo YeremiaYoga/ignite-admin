@@ -1,8 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import InputField from "@/components/InputField"; // <- path sesuai punyamu
+import InputField from "@/components/InputField";
 import AssetPicker from "./AssetPicker";
 import { Image as ImageIcon } from "lucide-react";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export default function AssetSelectField({
   label = "Image URL",
@@ -14,31 +16,40 @@ export default function AssetSelectField({
 }) {
   const [open, setOpen] = useState(false);
 
+  const resolvedSrc =
+    value?.startsWith("http") || value?.startsWith("https")
+      ? value
+      : `${API_BASE}${value?.startsWith("/") ? value : "/" + value}`;
+
   return (
     <div>
       <div className="flex items-end gap-2">
-        <div className="mt-2 h-12 w-12 overflow-hidden rounded-md border border-gray-700 bg-gray-900">
-          {value ? (
+        {/* Preview box */}
+        <div className="mt-2 h-12 w-12 overflow-hidden rounded-md border border-gray-700 bg-gray-900 flex items-center justify-center">
+          {resolvedSrc ? (
             <img
-              src={value}
+              src={resolvedSrc}
               alt="preview"
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="h-full w-full text-center text-[10px] leading-[3rem] text-gray-500">
-              No Img
-            </div>
+            // kosong saja tanpa text
+            <div className="h-full w-full" />
           )}
         </div>
+
+        {/* Input field */}
         <div className="flex-1">
           <InputField
             label={label}
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-           
+            hint={hint}
           />
         </div>
+
+        {/* Browse button */}
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -50,11 +61,15 @@ export default function AssetSelectField({
         </button>
       </div>
 
+      {/* Asset Picker */}
       <AssetPicker
         isOpen={open}
         initialPath={initialPath}
         onClose={() => setOpen(false)}
-        onSelect={(selectedUrl) => onChange(selectedUrl)}
+        onSelect={(selectedUrl) => {
+          onChange(selectedUrl); 
+          setOpen(false);
+        }}
       />
     </div>
   );

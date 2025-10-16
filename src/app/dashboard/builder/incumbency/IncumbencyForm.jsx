@@ -7,6 +7,8 @@ import AbilityEditor from "./AbilityEditor";
 import AssetSelectField from "@/components/AssetSelectField";
 import RichTextEditor from "@/components/RichTextEditor";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 const ALLOWED_TYPES = [
   "Basic",
   "Skill",
@@ -15,6 +17,7 @@ const ALLOWED_TYPES = [
   "Passive",
   "Technique",
 ];
+
 const ROLE_OPTIONS = [
   "support",
   "tank",
@@ -32,7 +35,7 @@ const ROLE_OPTIONS = [
 const DEFAULT_FORM = {
   name: "",
   version: 1,
-  img: "",
+  image: "",
   good: false,
   neutral: false,
   evil: false,
@@ -55,34 +58,36 @@ const DEFAULT_ABILITY = () => ({
   cost: "Action",
   additional_cost: "",
   type_ability: [],
-  img: "",
+  image: "",
   description: "",
 });
 
 export default function IncumbencyForm({
-  initialData = DEFAULT_FORM,
-  onSave,
-  saving = false,
-  mode = "create",
+  initialData,
+  mode = "create", 
+  onSaved, 
 }) {
-  const [form, setForm] = useState(initialData);
+
+  const [form, setForm] = useState(initialData || DEFAULT_FORM);
   const [open, setOpen] = useState({});
+  const [saving, setSaving] = useState(false);
 
   const updateField = (key, value) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
   const updateAbility = (idx, key, value) => {
     setForm((prev) => {
-      const abilities = [...prev.abilities];
+      const abilities = [...(prev.abilities || [])];
       abilities[idx] = { ...abilities[idx], [key]: value };
       return { ...prev, abilities };
     });
   };
 
-  const usedTypes = useMemo(
-    () => new Set(form.abilities.map((a) => a.type)),
-    [form.abilities]
-  );
+
+  const usedTypes = useMemo(() => {
+    const abilities = form?.abilities || [];
+    return new Set(abilities.map((a) => a.type));
+  }, [form]);
 
   const addAbility = () => {
     const nextType = ALLOWED_TYPES.find((t) => !usedTypes.has(t));
@@ -110,12 +115,43 @@ export default function IncumbencyForm({
   const toggleOpen = (idx) => setOpen((p) => ({ ...p, [idx]: !p[idx] }));
   const allTypesUsed = ALLOWED_TYPES.every((t) => usedTypes.has(t));
 
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const method = mode === "edit" ? "PATCH" : "POST";
+      const url =
+        mode === "edit"
+          ? `${API_BASE}/api/incumbency/${form.id}`
+          : `${API_BASE}/api/incumbency`;
+
+      console.log("🧩 Form data to save:", form);
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Failed to save");
+
+      alert("✅ Incumbency saved successfully!");
+      onSaved?.(data);
+    } catch (err) {
+      console.error("❌ Error saving:", err);
+      alert("❌ Error saving: " + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <div className="rounded-2xl  p-5 shadow-lg">
+    <div className="rounded-2xl p-5 shadow-lg">
+
       <div className="mb-5 flex items-center justify-between">
-        
         <button
-          onClick={() => onSave?.(form)}
+          onClick={handleSave}
           disabled={saving || !form.name}
           className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm
             ${
@@ -123,11 +159,11 @@ export default function IncumbencyForm({
                 ? "cursor-not-allowed border-slate-700 bg-slate-800 text-slate-400"
                 : "border-emerald-700 bg-emerald-600/20 text-emerald-200 hover:bg-emerald-600/30"
             }`}
-          title={!form.name ? "Isi Name dulu" : "Save"}
         >
           {saving ? "Saving..." : "Save"}
         </button>
       </div>
+
 
       <div className="grid grid-cols-1 gap-6">
         <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 shadow-lg">
@@ -146,15 +182,16 @@ export default function IncumbencyForm({
               onChange={(v) => updateField("version", Number(v))}
             />
 
-            {/* <div className="md:col-span-2">
+            <div className="md:col-span-2">
               <AssetSelectField
                 label="Image URL"
-                value={form.img}
-                onChange={(v) => updateField("img", v)}
+                value={form.image}
+                onChange={(v) => updateField("image", v)}
                 initialPath=""
               />
-            </div> */}
+            </div>
 
+            {/* === Disposition === */}
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm text-slate-300">
                 Disposition
@@ -183,6 +220,7 @@ export default function IncumbencyForm({
               </div>
             </div>
 
+            {/* === Attributes === */}
             <InputField
               label="Role"
               type="select"
@@ -191,35 +229,30 @@ export default function IncumbencyForm({
               options={ROLE_OPTIONS}
               placeholder="Select role"
             />
-
             <InputField
               label="HP Scale"
               type="number"
               value={form.hp_scale}
               onChange={(v) => updateField("hp_scale", Number(v))}
             />
-
             <InputField
               label="CV Minimum"
               type="number"
               value={form.cv_minimum}
               onChange={(v) => updateField("cv_minimum", Number(v))}
             />
-
             <InputField
               label="CV Flat Cost"
               type="number"
               value={form.cv_flat_cost}
               onChange={(v) => updateField("cv_flat_cost", Number(v))}
             />
-
             <InputField
               label="CV Percent Cost"
               type="number"
               value={form.cv_percent_cost}
               onChange={(v) => updateField("cv_percent_cost", Number(v))}
             />
-
             <InputField
               className="md:col-span-2"
               label="AC Calc"
@@ -227,7 +260,6 @@ export default function IncumbencyForm({
               onChange={(v) => updateField("ac_calc", v)}
               placeholder='e.g. "10 + Dexterity modifier"'
             />
-
             <InputField
               label="Initiative Bonus"
               type="number"
@@ -235,18 +267,18 @@ export default function IncumbencyForm({
               onChange={(v) => updateField("intivative_bonus", Number(v))}
             />
 
-            {/* <div className="md:col-span-2">
+            {/* === Description === */}
+            <div className="md:col-span-2">
               <RichTextEditor
                 value={form.description}
                 onChange={(v) => updateField("description", v)}
                 placeholder="Description"
                 rows={10}
               />
-            </div> */}
+            </div>
           </div>
         </section>
 
-        {/* Abilities */}
         <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold">Abilities</h3>
@@ -258,11 +290,6 @@ export default function IncumbencyForm({
                   ? "cursor-not-allowed border-slate-700 bg-slate-800 text-slate-400"
                   : "border-emerald-700 bg-emerald-600/20 text-emerald-200 hover:bg-emerald-600/30"
               }`}
-              title={
-                allTypesUsed
-                  ? "All ability types are already used"
-                  : "Add Ability"
-              }
             >
               <Plus size={16} /> Add Ability
             </button>
@@ -274,7 +301,7 @@ export default function IncumbencyForm({
             </p>
           )}
 
-          {/* <div className="space-y-3">
+          <div className="space-y-3">
             {form.abilities.map((ab, idx) => (
               <AbilityEditor
                 key={idx}
@@ -288,7 +315,7 @@ export default function IncumbencyForm({
                 allowedTypes={ALLOWED_TYPES}
               />
             ))}
-          </div> */}
+          </div>
         </section>
       </div>
     </div>
