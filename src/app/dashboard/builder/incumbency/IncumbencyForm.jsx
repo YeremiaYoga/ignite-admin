@@ -115,36 +115,56 @@ export default function IncumbencyForm({
   const toggleOpen = (idx) => setOpen((p) => ({ ...p, [idx]: !p[idx] }));
   const allTypesUsed = ALLOWED_TYPES.every((t) => usedTypes.has(t));
 
-  const handleSave = async () => {
-    try {
-      setSaving(true);
-      const method = mode === "edit" ? "PATCH" : "POST";
-      const url =
-        mode === "edit"
-          ? `${API_BASE}/api/incumbency/${form.id}`
-          : `${API_BASE}/api/incumbency`;
+const handleSave = async () => {
+  try {
+    setSaving(true);
 
-      console.log("🧩 Form data to save:", form);
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || "Failed to save");
-
-      alert("✅ Incumbency saved successfully!");
-      onSaved?.(data);
-    } catch (err) {
-      console.error("❌ Error saving:", err);
-      alert("❌ Error saving: " + err.message);
-    } finally {
-      setSaving(false);
+    const key =
+      form.key || form.name.toLowerCase().replace(/\s+/g, "_");
+    const resCheck = await fetch(`${API_BASE}/api/incumbency/key/${key}`, {
+      cache: "no-store",
+    });
+    let existing = [];
+    if (resCheck.ok) {
+      existing = await resCheck.json();
     }
-  };
+    const match = existing.find(
+      (item) => Number(item.version) === Number(form.version)
+    );
+    const payload = { ...form, key };
+    const method = match ? "PATCH" : "POST";
+    const url = match
+      ? `${API_BASE}/api/incumbency/${match.id}`
+      : `${API_BASE}/api/incumbency`;
+
+    console.log(
+      `🧩 Saving incumbency: ${method} (${match ? "update existing" : "create new version"})`
+    );
+
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to save");
+
+    alert(
+      match
+        ? `✅ Updated existing version v${form.version}`
+        : `✅ Created new version v${form.version}`
+    );
+
+    onSaved?.(data);
+  } catch (err) {
+    console.error("❌ Error saving:", err);
+    alert("❌ Error saving: " + err.message);
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   return (
     <div className="rounded-2xl p-5 shadow-lg">
