@@ -60,7 +60,6 @@ export default function InputField({
         </label>
       )}
 
-      {/* === field types === */}
       {type === "selectSearch" ? (
         <>
           <input
@@ -136,9 +135,9 @@ export default function InputField({
     }`}
         >
           <option value="">{placeholder || "Please select"}</option>
-          {options.map((opt) => (
+          {options.map((opt, index) => (
             <option
-              key={opt.value ?? opt}
+              key={opt.value ? `opt-${opt.value}` : `idx-${index}`}
               value={opt.value ?? opt}
               disabled={opt.disabled}
               className={`capitalize ${

@@ -2,14 +2,18 @@
 import { useEffect, useState } from "react";
 import IncumbencyForm from "./IncumbencyForm";
 import IncumbencyTable from "./IncumbencyTable";
+import IncumbencyViewModal from "./IncumbencyViewModal";
 
 export default function IncumbencyBuilderPage() {
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
   const [dataList, setDataList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
+  const [formMode, setFormMode] = useState("create");
+  const [currentItem, setCurrentItem] = useState(null);
+  const [viewItem, setViewItem] = useState(null); // <== NEW for View Modal
 
+  // === LOAD DATA ===
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -28,52 +32,66 @@ export default function IncumbencyBuilderPage() {
     fetchData();
   }, []);
 
+  // === DELETE HANDLER ===
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this data?")) return;
     try {
       await fetch(`${API_BASE}/api/incumbency/${id}`, { method: "DELETE" });
-      fetchData(); 
+      fetchData();
     } catch (err) {
       console.error("❌ Delete failed:", err);
     }
   };
 
+  // === MODE HANDLER (create/edit/duplicate) ===
+  const handleMode = (mode, item = null) => {
+    setFormMode(mode);
+    setCurrentItem(item);
+    setShowForm(true);
+  };
+
   return (
     <div className="p-6 text-white">
+      {/* === HEADER === */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Incumbencys</h1>
         <button
-          onClick={() => {
-            setEditingItem(null);
-            setShowForm(true);
-          }}
+          onClick={() => handleMode("create")}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
         >
           + Create
         </button>
       </div>
 
+      {/* === TABLE === */}
       <IncumbencyTable
         data={dataList}
         loading={loading}
-        onEdit={(item) => {
-          setEditingItem(item);
-          setShowForm(true);
-        }}
+        onMode={handleMode}
         onDelete={handleDelete}
+        onView={(item) => setViewItem(item)} // 👁️ Trigger view modal
       />
 
+      {/* === VIEW MODAL === */}
+      {viewItem && (
+        <IncumbencyViewModal
+          item={viewItem}
+          onClose={() => setViewItem(null)}
+        />
+      )}
+
+      {/* === FORM MODAL === */}
       {showForm && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-lg w-[900px] max-h-[90vh] overflow-y-auto relative p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">
-                {editingItem ? "Edit Incumbency" : "Create Incumbency"}
+              <h2 className="text-xl font-semibold capitalize">
+                {formMode} Incumbency
               </h2>
               <button
                 onClick={() => {
                   setShowForm(false);
-                  setEditingItem(null);
+                  setCurrentItem(null);
                 }}
                 className="px-3 py-1 text-sm bg-gray-700 hover:bg-gray-600 rounded-lg"
               >
@@ -82,12 +100,12 @@ export default function IncumbencyBuilderPage() {
             </div>
 
             <IncumbencyForm
-              mode={editingItem ? "edit" : "create"}
-              initialData={editingItem}
+              mode={formMode}
+              initialData={currentItem}
               onSaved={() => {
                 fetchData();
                 setShowForm(false);
-                setEditingItem(null);
+                setCurrentItem(null);
               }}
             />
           </div>

@@ -1,24 +1,7 @@
 "use client";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, Copy } from "lucide-react";
 
-export default function IncumbencyTable({ data, loading, onEdit, onDelete }) {
-const handleView = (item) => {
-  let message = "🧩 INCUMBENCY DETAILS\n\n";
-
-  for (const key in item) {
-    const value = item[key];
-
-    if (typeof value === "object" && value !== null) {
-      message += `${key}: ${JSON.stringify(value, null, 2)}\n\n`;
-    } else {
-      message += `${key}: ${value}\n`;
-    }
-  }
-
-  alert(message);
-};
-
-
+export default function IncumbencyTable({ data, loading, onMode, onDelete, onView }) {
   return (
     <div className="overflow-x-auto border border-gray-800 rounded-xl shadow-lg backdrop-blur bg-slate-900/50">
       <table className="w-full border-collapse text-sm">
@@ -32,7 +15,6 @@ const handleView = (item) => {
             <th className="py-3 px-4 text-center">Action</th>
           </tr>
         </thead>
-
         <tbody>
           {loading ? (
             <tr>
@@ -83,14 +65,21 @@ const handleView = (item) => {
                 <td className="py-3 px-4 text-center">
                   <div className="flex justify-center gap-3">
                     <button
-                      onClick={() => handleView(item)}
+                      onClick={() => onView(item)}
                       className="text-blue-400 hover:text-blue-300 transition-colors"
                       title="View"
                     >
                       <Eye size={18} />
                     </button>
                     <button
-                      onClick={() => onEdit(item)}
+                      onClick={() => onMode("duplicate", item)}
+                      className="text-green-400 hover:text-green-300 transition-colors"
+                      title="Duplicate"
+                    >
+                      <Copy size={18} />
+                    </button>
+                    <button
+                      onClick={() => onMode("edit", item)}
                       className="text-yellow-400 hover:text-yellow-300 transition-colors"
                       title="Edit"
                     >
@@ -100,7 +89,6 @@ const handleView = (item) => {
                       onClick={() => onDelete(item.id)}
                       className="text-red-500 hover:text-red-400 transition-colors"
                       title="Delete"
-                      disabled
                     >
                       <Trash2 size={18} />
                     </button>

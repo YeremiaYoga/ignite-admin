@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Plus, Eye, EyeOff } from "lucide-react";
 import InputField from "@/components/InputField";
 import AbilityEditor from "./AbilityEditor";
@@ -62,16 +62,31 @@ const DEFAULT_ABILITY = () => ({
   description: "",
 });
 
-export default function IncumbencyForm({
-  initialData,
-  mode = "create", 
-  onSaved, 
-}) {
-
+export default function IncumbencyForm({ initialData, mode = "create", onSaved }) {
   const [form, setForm] = useState(initialData || DEFAULT_FORM);
   const [open, setOpen] = useState({});
   const [saving, setSaving] = useState(false);
+  const [baseVersion, setBaseVersion] = useState(null); // versi asli saat duplicate
 
+  // === INIT LOGIC ===
+  useEffect(() => {
+    if (mode === "duplicate" && initialData) {
+      const nextVersion = Number(initialData.version || 1) + 1;
+      setForm({
+        ...initialData,
+        version: nextVersion,
+      });
+      setBaseVersion(Number(initialData.version));
+    } else if (initialData) {
+      setForm(initialData);
+      setBaseVersion(Number(initialData.version));
+    } else {
+      setForm(DEFAULT_FORM);
+      setBaseVersion(null);
+    }
+  }, [initialData, mode]);
+
+  // === UPDATE HANDLERS ===
   const updateField = (key, value) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
@@ -82,7 +97,6 @@ export default function IncumbencyForm({
       return { ...prev, abilities };
     });
   };
-
 
   const usedTypes = useMemo(() => {
     const abilities = form?.abilities || [];
@@ -115,75 +129,85 @@ export default function IncumbencyForm({
   const toggleOpen = (idx) => setOpen((p) => ({ ...p, [idx]: !p[idx] }));
   const allTypesUsed = ALLOWED_TYPES.every((t) => usedTypes.has(t));
 
-const handleSave = async () => {
-  try {
-    setSaving(true);
+  // === SAVE HANDLER ===
+  const handleSave = async () => {
+    try {
+      setSaving(true);
 
-    const key =
-      form.key || form.name.toLowerCase().replace(/\s+/g, "_");
-    const resCheck = await fetch(`${API_BASE}/api/incumbency/key/${key}`, {
-      cache: "no-store",
-    });
-    let existing = [];
-    if (resCheck.ok) {
-      existing = await resCheck.json();
+      const key = form.key || form.name.toLowerCase().replace(/\s+/g, "_");
+      const resCheck = await fetch(`${API_BASE}/api/incumbency/key/${key}`, {
+        cache: "no-store",
+      });
+
+      let existing = [];
+      if (resCheck.ok) {
+        existing = await resCheck.json();
+      }
+
+      const match = existing.find(
+        (item) => Number(item.version) === Number(form.version)
+      );
+
+      // 🧠 Duplicate mode logic:
+      // jika duplicate tapi versi sama dengan versi asli, maka ubah jadi edit/update
+      let effectiveMode = mode;
+      if (mode === "duplicate" && Number(form.version) === baseVersion) {
+        effectiveMode = "edit";
+        console.log("⚙️ Duplicate version sama → switch ke EDIT mode otomatis");
+      }
+
+      const payload = { ...form, key };
+      const method =
+        effectiveMode === "edit" || match ? "PATCH" : "POST";
+      const url =
+        method === "PATCH" && match
+          ? `${API_BASE}/api/incumbency/${match.id}`
+          : `${API_BASE}/api/incumbency`;
+
+      console.log(
+        `🧩 Saving incumbency: ${method} (${effectiveMode.toUpperCase()})`
+      );
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to save");
+
+      alert(
+        method === "PATCH"
+          ? `✅ Updated existing version v${form.version}`
+          : `✅ Created new version v${form.version}`
+      );
+
+      onSaved?.(data);
+    } catch (err) {
+      console.error("❌ Error saving:", err);
+      alert("❌ Error saving: " + err.message);
+    } finally {
+      setSaving(false);
     }
-    const match = existing.find(
-      (item) => Number(item.version) === Number(form.version)
-    );
-    const payload = { ...form, key };
-    const method = match ? "PATCH" : "POST";
-    const url = match
-      ? `${API_BASE}/api/incumbency/${match.id}`
-      : `${API_BASE}/api/incumbency`;
+  };
 
-    console.log(
-      `🧩 Saving incumbency: ${method} (${match ? "update existing" : "create new version"})`
-    );
-
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Failed to save");
-
-    alert(
-      match
-        ? `✅ Updated existing version v${form.version}`
-        : `✅ Created new version v${form.version}`
-    );
-
-    onSaved?.(data);
-  } catch (err) {
-    console.error("❌ Error saving:", err);
-    alert("❌ Error saving: " + err.message);
-  } finally {
-    setSaving(false);
-  }
-};
-
-
+  // === UI ===
   return (
     <div className="rounded-2xl p-5 shadow-lg">
-
       <div className="mb-5 flex items-center justify-between">
         <button
           onClick={handleSave}
           disabled={saving || !form.name}
-          className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm
-            ${
-              saving || !form.name
-                ? "cursor-not-allowed border-slate-700 bg-slate-800 text-slate-400"
-                : "border-emerald-700 bg-emerald-600/20 text-emerald-200 hover:bg-emerald-600/30"
-            }`}
+          className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
+            saving || !form.name
+              ? "cursor-not-allowed border-slate-700 bg-slate-800 text-slate-400"
+              : "border-emerald-700 bg-emerald-600/20 text-emerald-200 hover:bg-emerald-600/30"
+          }`}
         >
           {saving ? "Saving..." : "Save"}
         </button>
       </div>
-
 
       <div className="grid grid-cols-1 gap-6">
         <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 shadow-lg">
@@ -195,11 +219,21 @@ const handleSave = async () => {
               onChange={(v) => updateField("name", v)}
               placeholder="Name"
             />
+
+            {/* Version control logic */}
             <InputField
               label="Version"
               type="number"
               value={form.version}
+              disabled={mode === "edit"}
               onChange={(v) => updateField("version", Number(v))}
+              hint={
+                mode === "edit"
+                  ? "Version cannot be changed during edit."
+                  : mode === "duplicate"
+                  ? "If version is same as original, it will update instead of create."
+                  : undefined
+              }
             />
 
             <div className="md:col-span-2">
@@ -233,8 +267,7 @@ const handleSave = async () => {
                         : "border-slate-700 bg-slate-800 text-slate-300"
                     }`}
                   >
-                    {form[key] ? <Eye size={16} /> : <EyeOff size={16} />}{" "}
-                    {label}
+                    {form[key] ? <Eye size={16} /> : <EyeOff size={16} />} {label}
                   </button>
                 ))}
               </div>
@@ -299,6 +332,7 @@ const handleSave = async () => {
           </div>
         </section>
 
+        {/* === Abilities === */}
         <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold">Abilities</h3>
