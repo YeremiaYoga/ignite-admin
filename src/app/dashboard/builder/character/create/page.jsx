@@ -14,101 +14,95 @@ export default function CreateCharacterPage() {
   const initialStep = parseInt(searchParams.get("step") || "0", 10);
   const [currentStep, setCurrentStep] = useState(initialStep);
 
+  const [saving, setSaving] = useState(false);
+
   const [formData, setFormData] = useState({
-    step1: {
-      name: "",
-      fullname: "",
-      fullname_visibility: false,
-      art: "",
-      token_art: "",
-      uuid: "",
-      race: "",
-      subrace: "",
-      background: "",
-      character_type: "",
-      alignment: "",
-      status: "",
-      birth_year: "",
-      birth_year_type: "",
-      death_year: "",
-      death_year_type: "",
-      birth_place: "",
-      birth_country: "",
-      gender: "",
-      pronoun: "",
-      height: { feet: 0, inch: 0, centimeter: 0 },
-      weight: { pounds: 0, kilogram: 0 },
-      skin_colour: "",
-      hair: "",
-      wiki_visibility: false,
-      weight_unit: "imperial",
-      height_unit: "imperial",
-    },
-    step2: {
-      backstory_visibility: false,
-      backstory: "",
-      voice_style: "",
-      wayfarer: "",
-      personality_traits: [],
-      main_personality: "",
-      detailed_personality: [],
-      titles: [],
-      fear_weakness_visibility: false,
-      fear_weakness: [],
-      motivation_visibility: false,
-      motivation: [],
-      previous_economical_standing: "",
-      current_last_economical_standing: "",
-      previous_social_classes: "",
-      current_social_classes: "",
-    },
-    step3: {
-      appearance_visibility: false,
-      appearance: "",
-      main_theme: "",
-      main_theme_ogg: "",
-      combat_theme: "",
-      combat_theme_ogg: "",
-      nationality: "",
-      main_resident: { resident: "", country: "" },
-      notable_details: [],
-      current_occupation: [],
-      previous_occupation: [],
-      other_resident: [],
-      hobbies_visibility: false,
-      hobbies: [],
-      signature_object: [],
-      signature_weapon: [],
-    },
-    step4: {
-      notable_accomplishments: [],
-      connection_towards_events: [],
-      notable_quotes: "",
-      quotes_from_others: [],
-      family: [],
-      allies: [],
-      friends: [],
-      enemies: [],
-      subordinates: [],
-      affiliations: [],
-      special_relationship: [],
-    },
-    step5: {
-      combat_value: 0,
-      vision: "",
-      disposition: "",
-      damage_type: "",
-      str: 0,
-      dex: 0,
-      con: 0,
-      int: 0,
-      wis: 0,
-      cha: 0,
-      size: { general: "Medium", vtt_size: "med" },
-      creature_type: "Humanoid",
-      personality_combat_style: "",
-      skill_prof: [],
-    },
+    name: "",
+    full_name: "",
+    full_name_visibility: false,
+    art: "",
+    token_art: "",
+    uuid: "",
+    race_id: "",
+    subrace_id: "",
+    background_id: "",
+    public_id: "",
+    character_type: "",
+    alignment: "",
+    status: "",
+    birth_year: "",
+    birth_year_type: "",
+    death_year: "",
+    death_year_type: "",
+    birth_place: "",
+    birth_country: "",
+    gender: "",
+    pronoun: "",
+    height: { feet: 0, inch: 0, centimeter: 0 },
+    weight: { pounds: 0, kilogram: 0 },
+    skin_colour: "",
+    hair: "",
+    wiki_visibility: false,
+    weight_unit: "imperial",
+    height_unit: "imperial",
+
+    backstory_visibility: false,
+    backstory: "",
+    voice_style: "",
+    wayfarer: "",
+    personality_traits: [],
+    main_personality: "",
+    detailed_personality: [],
+    titles: [],
+    fear_weakness_visibility: false,
+    fear_weakness: [],
+    motivation_visibility: false,
+    motivation: [],
+    previous_economical_standing: "",
+    current_last_economical_standing: "",
+    previous_social_classes: "",
+    current_social_classes: "",
+    appearance_visibility: false,
+    appearance: "",
+    main_theme: "",
+    main_theme_ogg: "",
+    combat_theme: "",
+    combat_theme_ogg: "",
+    nationality: "",
+    main_resident: { resident: "", country: "" },
+    notable_details: [],
+    current_occupation: [],
+    previous_occupation: [],
+    other_resident: [],
+    hobbies_visibility: false,
+    hobbies: [],
+    signature_object: [],
+    signature_weapon: [],
+    notable_accomplishments: [],
+    connection_towards_events: [],
+    notable_quotes: "",
+    quotes_from_others: [],
+    family: [],
+    allies: [],
+    friends: [],
+    enemies: [],
+    subordinates: [],
+    affiliations: [],
+    special_relationship: [],
+    combat_value: 0,
+    vision: "",
+    disposition: "",
+    damage_type: "",
+    str: 0,
+    dex: 0,
+    con: 0,
+    int: 0,
+    wis: 0,
+    cha: 0,
+    size: { general: "Medium", vtt_size: "med" },
+    creature_type: "Humanoid",
+    personality_combat_style: "",
+    skill_prof: [],
   });
 
   const steps = [
@@ -119,10 +113,10 @@ export default function CreateCharacterPage() {
     { title: "Step 5", component: Step5, key: "step5" },
   ];
 
-  const handleChange = (stepKey, field, value) => {
+  const handleChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
-      [stepKey]: { ...prev[stepKey], [field]: value },
+      [field]: value,
     }));
   };
 
@@ -138,37 +132,38 @@ export default function CreateCharacterPage() {
   const nextStep = () => goToStep(currentStep + 1);
   const prevStep = () => goToStep(currentStep - 1);
 
-  const handleSubmit = async () => {
-    try {
-      const merged = {
-        ...formData.step1,
-        ...formData.step2,
-        ...formData.step3,
-        ...formData.step4,
-        ...formData.step5,
-      };
+const handleSubmit = async () => {
+  try {
+    setSaving(true);
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/characters/save`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(merged),
-        }
-      );
+    const form = new FormData();
+    form.append("data", JSON.stringify(formData)); // kirim semua data karakter
+    if (formData.art) form.append("art", formData.art); // file art
+    if (formData.token_art) form.append("token_art", formData.token_art);
+    if (formData.main_theme_ogg) form.append("main_theme_ogg", formData.main_theme_ogg);
+    if (formData.combat_theme_ogg) form.append("combat_theme_ogg", formData.combat_theme_ogg);
 
-      if (!res.ok) throw new Error("Save failed");
-      alert("✅ Character saved!");
-      router.replace("/dashboard/builder/character");
-    } catch (err) {
-      console.error(err);
-      alert("❌ Failed to save character.");
-    }
-  };
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/characters/save`, {
+      method: "POST",
+      body: form,
+      credentials: "include",
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || "Save failed");
+
+    alert("✅ Character saved!");
+    router.replace("/dashboard/builder/character");
+  } catch (err) {
+    console.error("❌ Save error:", err);
+    alert("❌ Failed to save character.");
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   const CurrentComponent = steps[currentStep].component;
-  const stepKey = steps[currentStep].key;
-  const stepData = formData[stepKey];
 
   return (
     <main className="mx-auto px-4 py-8 text-white min-h-screen">
@@ -217,6 +212,19 @@ export default function CreateCharacterPage() {
         </button>
 
         <div className="flex gap-2">
+          {/* 💾 Save button (selalu muncul di setiap step) */}
+          <button
+            onClick={handleSubmit}
+            disabled={saving}
+            className={`px-4 py-2 rounded shadow ${
+              saving
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-yellow-500 hover:bg-yellow-600"
+            }`}
+          >
+            {saving ? "Saving..." : "Save"}
+          </button>
+
           {currentStep === steps.length - 1 ? (
             <button
               onClick={handleSubmit}
@@ -235,12 +243,11 @@ export default function CreateCharacterPage() {
         </div>
       </div>
 
-      {/* Step content */}
       <div className="p-6 rounded-lg shadow bg-[#0b1230] border border-slate-700">
         <CurrentComponent
-          data={stepData}
+          data={formData}
           allData={formData}
-          onChange={(field, value) => handleChange(stepKey, field, value)}
+          onChange={handleChange}
         />
       </div>
     </main>

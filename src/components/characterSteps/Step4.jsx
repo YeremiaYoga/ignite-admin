@@ -12,7 +12,7 @@ import {
   affiliationsOptions,
 } from "../../data/characterOptions";
 export default function Step4({ data, allData, onChange }) {
-  const step4 = data || {};
+
   return (
     <div className="p-6 max-w-6xl mx-auto bg-gray-900 text-gray-100 rounded-xl shadow-lg space-y-6">
       <div className="grid grid-cols-10 gap-6">

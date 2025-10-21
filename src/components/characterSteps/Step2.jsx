@@ -10,7 +10,7 @@ import {
 } from "../../data/characterOptions";
 import RichTextEditor from "@/components/RichTextEditor";
 export default function Step2({ data, allData, onChange }) {
-  const step2 = data || {};
+ 
 
   const allTraitsWithImages = allTraitsOptions.map((trait) => ({
     value: trait.toLowerCase(),
@@ -35,28 +35,28 @@ export default function Step2({ data, allData, onChange }) {
             <div className="grid grid-cols-2 gap-2">
               <InputField
                 type="selectImage"
-                value={step2.personality_traits?.[0] || ""}
+                value={data.personality_traits?.[0] || ""}
                 onChange={(val) => {
-                  const updated = [...(step2.personality_traits || [])];
+                  const updated = [...(data.personality_traits || [])];
                   updated[0] = val;
                   onChange("personality_traits", updated);
                 }}
                 options={allTraitsWithImages.filter(
-                  (t) => t.value !== step2.personality_traits?.[1]
+                  (t) => t.value !== data.personality_traits?.[1]
                 )}
                 placeholder="Select Trait"
               />
 
               <InputField
                 type="selectImage"
-                value={step2.personality_traits?.[1] || ""}
+                value={data.personality_traits?.[1] || ""}
                 onChange={(val) => {
-                  const updated = [...(step2.personality_traits || [])];
+                  const updated = [...(data.personality_traits || [])];
                   updated[1] = val;
                   onChange("personality_traits", updated);
                 }}
                 options={allTraitsWithImages.filter(
-                  (t) => t.value !== step2.personality_traits?.[0]
+                  (t) => t.value !== data.personality_traits?.[0]
                 )}
                 placeholder="Select Trait"
               />
@@ -70,13 +70,13 @@ export default function Step2({ data, allData, onChange }) {
             <InputField
          
               type="toggleIcon"
-              value={step2.backstory_visibility}
+              value={data.backstory_visibility}
               onChange={(v) => onChange("backstory_visibility", v)}
             />
   
           </div>
           <RichTextEditor
-            value={step2.backstory || ""}
+            value={data.backstory || ""}
             onChange={(html) => onChange("backstory", html)}
             placeholder="backstory"
             rows={22}
@@ -87,7 +87,7 @@ export default function Step2({ data, allData, onChange }) {
           {allData?.step1?.character_type === "NPC" && (
             <InputField
               label="Voice Style"
-              value={step2.voice_style || ""}
+              value={data.voice_style || ""}
               onChange={(val) => onChange("voice_style", val)}
               placeholder="Enter voice style"
               rows={4}
@@ -95,7 +95,7 @@ export default function Step2({ data, allData, onChange }) {
           )}
           <InputField
             label="Main Personality"
-            value={step2.main_personality || ""}
+            value={data.main_personality || ""}
             onChange={(val) => onChange("main_personality", val)}
             placeholder="Enter main personality"
           />
@@ -142,7 +142,7 @@ export default function Step2({ data, allData, onChange }) {
             <MultipleInput
               labels="Wayfarer (Path)"
               label="Path"
-              items={step2.wayfarer || [""]}
+              items={data.wayfarer || [""]}
               onChange={(vals) => onChange("wayfarer", vals)}
               selectOptions={[
                 { label: "Test1", value: "Test1" },
@@ -159,8 +159,8 @@ export default function Step2({ data, allData, onChange }) {
               type="object"
               fields={["name", "from"]}
               items={
-                step2.titles && step2.titles.length
-                  ? step2.titles
+                data.titles && data.titles.length
+                  ? data.titles
                   : [{ name: "", from: "" }]
               }
               onChange={(vals) => onChange("titles", vals)}
@@ -172,8 +172,8 @@ export default function Step2({ data, allData, onChange }) {
               labels="Detailed Personality"
               label="Detail"
               items={
-                step2.detailed_personality && step2.detailed_personality.length
-                  ? step2.detailed_personality
+                data.detailed_personality && data.detailed_personality.length
+                  ? data.detailed_personality
                   : [""]
               }
               onChange={(vals) => onChange("detailed_personality", vals)}
@@ -200,8 +200,8 @@ export default function Step2({ data, allData, onChange }) {
             type="object"
             fields={["fear/weak", "from"]}
             items={
-              step2.fear_weakness && step2.fear_weakness.length
-                ? step2.fear_weakness
+              data.fear_weakness && data.fear_weakness.length
+                ? data.fear_weakness
                 : [{ fear_weak: "", from: "" }]
             }
             onChange={(vals) => onChange("fear_weakness", vals)}
@@ -225,8 +225,8 @@ export default function Step2({ data, allData, onChange }) {
             type="object"
             fields={["motivation", "from", "how"]}
             items={
-              step2.motivation && step2.motivation.length
-                ? step2.motivation
+              data.motivation && data.motivation.length
+                ? data.motivation
                 : [{ motivation: "", from: "", how: "" }]
             }
             onChange={(vals) => onChange("motivation", vals)}

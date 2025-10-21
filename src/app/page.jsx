@@ -21,7 +21,7 @@ export default function LoginPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
-          credentials: "include", // penting agar cookie dikirim & diterima
+          credentials: "include", 
         }
       );
 
@@ -29,7 +29,7 @@ export default function LoginPage() {
 
       if (!res.ok) throw new Error(data.error || "Login failed");
 
-      // cookie token sudah otomatis diset dari backend
+
       router.push("/dashboard");
     } catch (err) {
       console.error("❌ Login error:", err);

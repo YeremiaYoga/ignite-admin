@@ -62,7 +62,11 @@ const DEFAULT_ABILITY = () => ({
   description: "",
 });
 
-export default function IncumbencyForm({ initialData, mode = "create", onSaved }) {
+export default function IncumbencyForm({
+  initialData,
+  mode = "create",
+  onSaved,
+}) {
   const [form, setForm] = useState(initialData || DEFAULT_FORM);
   const [open, setOpen] = useState({});
   const [saving, setSaving] = useState(false);
@@ -157,21 +161,17 @@ export default function IncumbencyForm({ initialData, mode = "create", onSaved }
       }
 
       const payload = { ...form, key };
-      const method =
-        effectiveMode === "edit" || match ? "PATCH" : "POST";
+      const method = effectiveMode === "edit" || match ? "PATCH" : "POST";
       const url =
         method === "PATCH" && match
           ? `${API_BASE}/api/incumbency/${match.id}`
           : `${API_BASE}/api/incumbency`;
 
-      console.log(
-        `🧩 Saving incumbency: ${method} (${effectiveMode.toUpperCase()})`
-      );
-
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+         credentials: "include",
       });
 
       const data = await res.json();
@@ -267,7 +267,8 @@ export default function IncumbencyForm({ initialData, mode = "create", onSaved }
                         : "border-slate-700 bg-slate-800 text-slate-300"
                     }`}
                   >
-                    {form[key] ? <Eye size={16} /> : <EyeOff size={16} />} {label}
+                    {form[key] ? <Eye size={16} /> : <EyeOff size={16} />}{" "}
+                    {label}
                   </button>
                 ))}
               </div>

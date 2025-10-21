@@ -6,7 +6,7 @@ import { Eye, EyeOff, Upload } from "lucide-react";
 import { nationalityOptions, countryOptions } from "../../data/characterOptions";
 
 export default function Step3({ data, allData, onChange, mode }) {
-  const step3 = data || {};
+ 
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-gray-900 text-gray-100 rounded-xl shadow-lg space-y-6">
@@ -123,7 +123,7 @@ export default function Step3({ data, allData, onChange, mode }) {
             label="Nationality"
             type={mode ? "select" : "text"}
             placeholder={mode ? "Select Nationality" : "Country"}
-            value={step3.nationality || ""}
+            value={data.nationality || ""}
             onChange={(val) => onChange("nationality", val)}
             options={mode ? nationalityOptions : undefined}
           />

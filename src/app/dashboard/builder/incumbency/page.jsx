@@ -72,7 +72,6 @@ export default function IncumbencyBuilderPage() {
         onView={(item) => setViewItem(item)} // 👁️ Trigger view modal
       />
 
-      {/* === VIEW MODAL === */}
       {viewItem && (
         <IncumbencyViewModal
           item={viewItem}
@@ -80,7 +79,6 @@ export default function IncumbencyBuilderPage() {
         />
       )}
 
-      {/* === FORM MODAL === */}
       {showForm && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-lg w-[900px] max-h-[90vh] overflow-y-auto relative p-6">

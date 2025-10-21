@@ -8,21 +8,17 @@ import Cookies from "js-cookie";
 import { Eye, EyeOff, Clipboard } from "lucide-react";
 import { countryOptions, alignmentOptions } from "../../data/characterOptions";
 
-export default function Step1({ data, onChange }) {
+export default function Step1({ data = {}, onChange }) {
   const [artPreview, setArtPreview] = useState(null);
   const [tokenPreview, setTokenPreview] = useState(null);
   const [raceOptions, setRaceOptions] = useState([]);
   const [backgroundOptions, setBackgroundOptions] = useState([]);
+  const [subraceOptions, setSubraceOptions] = useState([]);
+  const [noSubrace, setNoSubrace] = useState(false);
 
   const [talesMode, setTalesMode] = useState(false);
   const [charId, setCharId] = useState("");
-
-  const [unit, setUnit] = useState({
-    heightUnit: "imperial",
-    height: { feet: "", inch: "", centimeter: "" },
-    weight_unit: "imperial",
-    weight: { kg: "", lbs: "" },
-  });
+  const [publicId, setPublicId] = useState("");
 
   useEffect(() => {
     const mode = Cookies.get("ignite-tales-mode");
@@ -31,18 +27,25 @@ export default function Step1({ data, onChange }) {
   useEffect(() => {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let randomId = "";
-    for (let i = 0; i < 12; i++) {
-      randomId += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setCharId(randomId);
-    onChange("uuid", randomId);
+
+    const randomString = (len) => {
+      let s = "";
+      for (let i = 0; i < len; i++) {
+        s += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return s;
+    };
+
+    const uuid = randomString(13);
+    const publicId = randomString(12);
+
+    setCharId(uuid);
+    setPublicId(publicId);
+
+    onChange("uuid", uuid);
+    onChange("public_id", publicId);
   }, []);
-  const formatRace = (str) =>
-    str
-      .replace(/_/g, " ")
-      .toLowerCase()
-      .replace(/\b\w/g, (c) => c.toUpperCase());
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -55,7 +58,7 @@ export default function Step1({ data, onChange }) {
         setRaceOptions(
           races.map((r) => ({
             label: r.name,
-            value: r.name,
+            value: r.id,
             id: r.id,
             // image: r.image || r.main_image || "/assets/races/default.webp",
             description: r.description,
@@ -75,7 +78,7 @@ export default function Step1({ data, onChange }) {
         setBackgroundOptions(
           backgrounds.map((b) => ({
             label: b.name,
-            value: b.name,
+            value: b.id,
             id: b.id,
             // image: b.image || "/assets/backgrounds/default.webp",
             description: b.description || "",
@@ -89,11 +92,47 @@ export default function Step1({ data, onChange }) {
     fetchData();
   }, []);
 
-  const toggleWikiVisibility = () => {
-    onChange("wiki_visibility", !data.wiki_visibility);
-  };
+  useEffect(() => {
+    if (!data.race_id) {
+      setSubraceOptions([]);
+      setNoSubrace(false);
+      return;
+    }
+
+    const fetchSubraces = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/subraces/race/${data.race_id}`
+        );
+        if (!res.ok) throw new Error("Failed to fetch subraces");
+
+        const subs = await res.json();
+        if (subs.length === 0) {
+          setNoSubrace(true);
+          setSubraceOptions([]);
+        } else {
+          setNoSubrace(false);
+          setSubraceOptions(
+            subs.map((s) => ({
+              label: s.name,
+              value: s.id,
+              id: s.id,
+              description: s.description || "",
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Fetch subraces error:", err);
+        setNoSubrace(true);
+        setSubraceOptions([]);
+      }
+    };
+
+    fetchSubraces();
+  }, [data.race_id]);
+
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(charId);
+    navigator.clipboard.writeText(publicId);
     alert("ID copied to clipboard!");
   };
 
@@ -129,14 +168,14 @@ export default function Step1({ data, onChange }) {
               <label className="text-sm font-medium">Fullname</label>
               <InputField
                 type="toggleIcon"
-                value={data.fullname_visibility}
-                onChange={(v) => onChange("fullname_visibility", v)}
+                value={data.full_name_visibility}
+                onChange={(v) => onChange("full_name_visibility", v)}
               />
             </div>
             <InputField
               label=""
-              value={data.fullname}
-              onChange={(val) => onChange("fullname", val)}
+              value={data.full_name}
+              onChange={(val) => onChange("full_name", val)}
               placeholder="Please input your character’s full name"
             />
           </div>
@@ -188,12 +227,15 @@ export default function Step1({ data, onChange }) {
           </div>
         </div>
         <div className="mt-[14px]">
-          <div className="flex items-center justify-between mb-2 text-sm font-medium text-gray-200">
-            <div className="flex items-center gap-2">
-              <span className="truncate max-w-[140px]">UUID : {data.uuid}</span>
+          <div className=" mb-2 text-sm font-medium text-gray-200">
+            <div className="flex items-center justify-between gap-2">
+              <span className=" ">Public Id : {data.public_id}</span>
               <button onClick={copyToClipboard}>
                 <Clipboard className="w-4 h-4 text-gray-400 hover:text-gray-200" />
               </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className=" ">UUID : {data.uuid}</span>
             </div>
           </div>
 
@@ -213,7 +255,7 @@ export default function Step1({ data, onChange }) {
           <div className="text-center mt-2">Art</div>
         </div>
 
-        <div className="">
+        <div className="mt-5">
           <div className="flex items-center justify-end mb-2 text-sm font-medium text-gray-200">
             <InputField
               type="toggleIcon"
@@ -255,18 +297,50 @@ export default function Step1({ data, onChange }) {
           <InputField
             label="Race"
             type="selectSearch"
-            value={data.race}
-            onChange={(val) => onChange("race", val)}
+            value={data.race_name}
+            onChange={(val) => {
+              const selected = raceOptions.find(
+                (r) => r.id === val || r.value === val
+              );
+              onChange("race_id", selected?.id || "");
+              onChange("race_name", selected?.label || "");
+              onChange("subrace_id", "");
+              onChange("subrace_name", "");
+            }}
             placeholder={raceOptions.length ? "Select Race" : "Loading..."}
             options={raceOptions}
           />
 
-          <InputField
-            label="Sub Race"
-            value={data.subrace}
-            onChange={(val) => onChange("subrace", val)}
-            placeholder="Please Input The Subrace"
-          />
+          <div>
+            <InputField
+              label="Sub Race"
+              type="selectSearch"
+              value={data.subrace_name}
+              onChange={(val) => {
+                const selected = subraceOptions.find(
+                  (s) => s.id === val || s.value === val
+                );
+                onChange("subrace_id", selected?.id || "");
+                onChange("subrace_name", selected?.label || "");
+              }}
+              placeholder={
+                !data.race_id
+                  ? "Select race first"
+                  : noSubrace
+                  ? "No subrace available"
+                  : subraceOptions.length
+                  ? "Select Subrace"
+                  : "Loading..."
+              }
+              options={subraceOptions}
+              disabled={!data.race_id || noSubrace}
+            />
+            {data.race_id && noSubrace && (
+              <p className="text-xs text-gray-400 italic mt-1">
+                ⚠️ This race does not have any subrace.
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-4">
