@@ -23,11 +23,11 @@ export default function Step2({ data, allData, onChange }) {
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-9 flex items-center">
           <p className="text-lg font-semibold">
-            {allData?.step1?.name || "Unknown"}'s Profile
+            {allData?.name || "Unknown"}'s Profile
           </p>
         </div>
 
-        {allData?.step1?.character_type === "NPC" && (
+        {allData?.character_type === "NPC" && (
           <div className="col-span-3">
             <label className="block text-sm font-medium mb-1">
               Personality Traits
@@ -84,7 +84,7 @@ export default function Step2({ data, allData, onChange }) {
         </div>
 
         <div className="col-span-3 space-y-4">
-          {allData?.step1?.character_type === "NPC" && (
+          {allData?.character_type === "NPC" && (
             <InputField
               label="Voice Style"
               value={data.voice_style || ""}

@@ -60,17 +60,17 @@ export default function Step5({ data, allData, onChange }) {
     );
     if (!stillValid) {
       setSelectedStyle(null);
-      onChange("combat_style", null);
+      onChange("incumbency_id", null);
     }
   }, [filteredIncumbency]);
 
   const handleSelectStyle = (name) => {
     const found = filteredIncumbency.find((x) => x.name === name);
     setSelectedStyle(found || null);
-    onChange("combat_style", found || null);
+    onChange("incumbency_id", found || null);
   };
 
- const getAbilityImg = (ab) => ab?.image || "";
+  const getAbilityImg = (ab) => ab?.image || "";
 
   const getAbilityName = (ab) =>
     ab?.title || ab?.name || ab?.label || "Ability";
@@ -334,7 +334,7 @@ export default function Step5({ data, allData, onChange }) {
                 onChange("combat_value", numberVal);
 
                 setSelectedStyle(null);
-                onChange("combat_style", null);
+                onChange("incumbency_id", null);
                 onChange("skill_prof", []);
                 onChange("usedSkillPoints", 0);
 
@@ -398,10 +398,10 @@ export default function Step5({ data, allData, onChange }) {
               value={selectedStyle?.name || ""}
               onChange={(val) => {
                 const found = filteredIncumbency.find((x) => x.name === val);
+                console.log(found);
                 setSelectedStyle(found || null);
-                onChange("combat_style", found || null);
+                onChange("incumbency_id", found.id || null);
 
-                // reset skill points setiap ganti style
                 onChange("skill_prof", []);
                 onChange("usedSkillPoints", 0);
 
@@ -428,7 +428,6 @@ export default function Step5({ data, allData, onChange }) {
                 .map((it) => ({
                   label: `${it.name} (Min CV: ${it.cv_minimum ?? 0})`,
                   value: it.name,
-                  // 🔹 cukup panggil langsung field image
                   image: it.image || "/assets/default_style.webp",
                 }))}
             />
@@ -440,7 +439,6 @@ export default function Step5({ data, allData, onChange }) {
               <div className="grid grid-cols-6 gap-2">
                 {selectedStyle.abilities.map((ab, idx) => {
                   const src = getAbilityImg(ab);
-                  console.log(ab);
                   const name = getAbilityName(ab);
                   const desc = getAbilityDesc(ab);
                   const isActive = selectedAbility === idx;
@@ -448,6 +446,8 @@ export default function Step5({ data, allData, onChange }) {
                   return (
                     <div
                       key={idx}
+                      id={`ability-${ab.id || idx}`} // ✅ id ditambahkan di sini
+                      data-id={ab.id || idx} // ✅ untuk selector data
                       className={[
                         "relative aspect-square w-full",
                         "rounded-md border border-gray-700 bg-gray-900",
@@ -701,7 +701,7 @@ export default function Step5({ data, allData, onChange }) {
               onChange("disposition", val);
 
               setSelectedStyle(null);
-              onChange("combat_style", null);
+              onChange("incumbency_id", null);
             }}
             options={["Friendly", "Neutral", "Hostile", "Unknown"]}
             placeholder="Select Disposition"

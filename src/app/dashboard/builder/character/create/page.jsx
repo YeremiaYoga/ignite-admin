@@ -103,6 +103,7 @@ export default function CreateCharacterPage() {
     creature_type: "Humanoid",
     personality_combat_style: "",
     skill_prof: [],
+    incumbency_id:""
   });
 
   const steps = [
