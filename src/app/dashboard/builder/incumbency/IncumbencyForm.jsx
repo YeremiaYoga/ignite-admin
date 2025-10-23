@@ -70,7 +70,7 @@ export default function IncumbencyForm({
   const [form, setForm] = useState(initialData || DEFAULT_FORM);
   const [open, setOpen] = useState({});
   const [saving, setSaving] = useState(false);
-  const [baseVersion, setBaseVersion] = useState(null); 
+  const [baseVersion, setBaseVersion] = useState(null);
 
   useEffect(() => {
     if (mode === "duplicate" && initialData) {
@@ -149,7 +149,6 @@ export default function IncumbencyForm({
         (item) => Number(item.version) === Number(form.version)
       );
 
-
       let effectiveMode = mode;
       if (mode === "duplicate" && Number(form.version) === baseVersion) {
         effectiveMode = "edit";
@@ -167,7 +166,7 @@ export default function IncumbencyForm({
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-         credentials: "include",
+        credentials: "include",
       });
 
       const data = await res.json();
@@ -241,7 +240,6 @@ export default function IncumbencyForm({
               />
             </div>
 
-            {/* === Disposition === */}
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm text-slate-300">
                 Disposition
@@ -256,14 +254,20 @@ export default function IncumbencyForm({
                   <button
                     key={key}
                     type="button"
-                    onClick={() => updateField(key, !form[key])}
+                    onClick={() =>
+                      updateField(`alignment_${key}`, !form[`alignment_${key}`])
+                    }
                     className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm ${
-                      form[key]
+                      form[`alignment_${key}`]
                         ? "border-emerald-700 bg-emerald-600/20 text-emerald-200"
                         : "border-slate-700 bg-slate-800 text-slate-300"
                     }`}
                   >
-                    {form[key] ? <Eye size={16} /> : <EyeOff size={16} />}{" "}
+                    {form[`alignment_${key}`] ? (
+                      <Eye size={16} />
+                    ) : (
+                      <EyeOff size={16} />
+                    )}{" "}
                     {label}
                   </button>
                 ))}
@@ -313,7 +317,7 @@ export default function IncumbencyForm({
             <InputField
               label="Initiative Bonus"
               type="number"
-              value={form.intivative_bonus}
+              value={form.initiative_bonus}
               onChange={(v) => updateField("intivative_bonus", Number(v))}
             />
 

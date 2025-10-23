@@ -103,7 +103,7 @@ export default function CreateCharacterPage() {
     creature_type: "Humanoid",
     personality_combat_style: "",
     skill_prof: [],
-    incumbency_id:""
+    incumbency_id: "",
   });
 
   const steps = [
@@ -133,36 +133,41 @@ export default function CreateCharacterPage() {
   const nextStep = () => goToStep(currentStep + 1);
   const prevStep = () => goToStep(currentStep - 1);
 
-const handleSubmit = async () => {
-  try {
-    setSaving(true);
+  const handleSubmit = async () => {
+    try {
+      setSaving(true);
 
-    const form = new FormData();
-    form.append("data", JSON.stringify(formData)); // kirim semua data karakter
-    if (formData.art) form.append("art", formData.art); // file art
-    if (formData.token_art) form.append("token_art", formData.token_art);
-    if (formData.main_theme_ogg) form.append("main_theme_ogg", formData.main_theme_ogg);
-    if (formData.combat_theme_ogg) form.append("combat_theme_ogg", formData.combat_theme_ogg);
+      const form = new FormData();
+      form.append("data", JSON.stringify(formData));
+      if (formData.art instanceof File) form.append("art", formData.art);
+      if (formData.token_art instanceof File)
+        form.append("token_art", formData.token_art);
+      if (formData.main_theme_ogg instanceof File)
+        form.append("main_theme_ogg", formData.main_theme_ogg);
+      if (formData.combat_theme_ogg instanceof File)
+        form.append("combat_theme_ogg", formData.combat_theme_ogg);
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/characters/save`, {
-      method: "POST",
-      body: form,
-      credentials: "include",
-    });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/characters/save`,
+        {
+          method: "POST",
+          body: form,
+          credentials: "include",
+        }
+      );
 
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || "Save failed");
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Save failed");
 
-    alert("✅ Character saved!");
-    router.replace("/dashboard/builder/character");
-  } catch (err) {
-    console.error("❌ Save error:", err);
-    alert("❌ Failed to save character.");
-  } finally {
-    setSaving(false);
-  }
-};
-
+      alert("✅ Character saved!");
+      router.replace("/dashboard/builder/character");
+    } catch (err) {
+      console.error("❌ Save error:", err);
+      alert("❌ Failed to save character.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const CurrentComponent = steps[currentStep].component;
 
