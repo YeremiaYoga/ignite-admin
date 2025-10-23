@@ -22,7 +22,7 @@ export default function CreateCharacterPage() {
     full_name_visibility: false,
     art: "",
     token_art: "",
-    uuid: "",
+    private_id: "",
     race_id: "",
     subrace_id: "",
     background_id: "",

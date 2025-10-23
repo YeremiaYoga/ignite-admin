@@ -22,7 +22,7 @@ export default function AssetPicker({
     setLoading(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/assets/list?path=${encodeURIComponent(p)}`,
+        `${process.env.NEXT_PUBLIC_MEDIA_URL}/assets/list?path=${encodeURIComponent(p)}`,
         { cache: "no-store" }
       );
       const json = await res.json();

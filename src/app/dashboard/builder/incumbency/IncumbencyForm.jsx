@@ -7,7 +7,7 @@ import AbilityEditor from "./AbilityEditor";
 import AssetSelectField from "@/components/AssetSelectField";
 import RichTextEditor from "@/components/RichTextEditor";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 const ALLOWED_TYPES = [
   "Basic",
@@ -70,9 +70,8 @@ export default function IncumbencyForm({
   const [form, setForm] = useState(initialData || DEFAULT_FORM);
   const [open, setOpen] = useState({});
   const [saving, setSaving] = useState(false);
-  const [baseVersion, setBaseVersion] = useState(null); // versi asli saat duplicate
+  const [baseVersion, setBaseVersion] = useState(null); 
 
-  // === INIT LOGIC ===
   useEffect(() => {
     if (mode === "duplicate" && initialData) {
       const nextVersion = Number(initialData.version || 1) + 1;
@@ -90,7 +89,6 @@ export default function IncumbencyForm({
     }
   }, [initialData, mode]);
 
-  // === UPDATE HANDLERS ===
   const updateField = (key, value) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
@@ -133,7 +131,6 @@ export default function IncumbencyForm({
   const toggleOpen = (idx) => setOpen((p) => ({ ...p, [idx]: !p[idx] }));
   const allTypesUsed = ALLOWED_TYPES.every((t) => usedTypes.has(t));
 
-  // === SAVE HANDLER ===
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -152,8 +149,7 @@ export default function IncumbencyForm({
         (item) => Number(item.version) === Number(form.version)
       );
 
-      // 🧠 Duplicate mode logic:
-      // jika duplicate tapi versi sama dengan versi asli, maka ubah jadi edit/update
+
       let effectiveMode = mode;
       if (mode === "duplicate" && Number(form.version) === baseVersion) {
         effectiveMode = "edit";
@@ -333,7 +329,6 @@ export default function IncumbencyForm({
           </div>
         </section>
 
-        {/* === Abilities === */}
         <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold">Abilities</h3>

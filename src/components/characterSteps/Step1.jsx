@@ -17,7 +17,7 @@ export default function Step1({ data = {}, onChange }) {
   const [noSubrace, setNoSubrace] = useState(false);
 
   const [talesMode, setTalesMode] = useState(false);
-  const [charId, setCharId] = useState("");
+  const [privateId, setPrivateId] = useState("");
   const [publicId, setPublicId] = useState("");
 
   useEffect(() => {
@@ -36,13 +36,13 @@ export default function Step1({ data = {}, onChange }) {
       return s;
     };
 
-    const uuid = randomString(13);
+    const privateId = randomString(13);
     const publicId = randomString(12);
 
-    setCharId(uuid);
+    setPrivateId(privateId);
     setPublicId(publicId);
 
-    onChange("uuid", uuid);
+    onChange("private_id", privateId);
     onChange("public_id", publicId);
   }, []);
 
@@ -136,21 +136,41 @@ export default function Step1({ data = {}, onChange }) {
     alert("ID copied to clipboard!");
   };
 
-  const handleFile = (file, type) => {
+  const handleFile = async (file, type) => {
     if (!file) return;
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      if (type === "art") {
-        setArtPreview(reader.result);
-        onChange("art", file);
-      }
-      if (type === "token") {
-        setTokenPreview(reader.result);
-        onChange("token_art", file);
-      }
+      if (type === "art") setArtPreview(reader.result);
+      if (type === "token") setTokenPreview(reader.result);
     };
     reader.readAsDataURL(file);
+
+    console.log(publicId);
+    try {
+      const formData = new FormData();
+      formData.append("path", `characters`);
+      formData.append("folder_name", publicId);
+      formData.append("file", file);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_MEDIA_URL}/upload`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+      const result = await res.json();
+
+      const uploadedUrl = result.fullUrl;
+      console.log(`✅ ${type} uploaded:`, uploadedUrl);
+
+      if (type === "art") onChange("art_url", uploadedUrl);
+      if (type === "token") onChange("token_art_url", uploadedUrl);
+    } catch (err) {
+      console.error(`❌ ${type} upload failed:`, err);
+      alert(`Upload ${type} failed`);
+    }
   };
 
   return (
@@ -235,7 +255,7 @@ export default function Step1({ data = {}, onChange }) {
               </button>
             </div>
             <div className="flex items-center gap-2">
-              <span className=" ">UUID : {data.uuid}</span>
+              <span className=" ">UUID : {data.private_id}</span>
             </div>
           </div>
 

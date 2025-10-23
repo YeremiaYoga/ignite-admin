@@ -126,7 +126,7 @@ export default function AbilityEditor({
               <AssetSelectField
                 label="Image URL"
                 value={data.image}
-                onChange={(v) => onChange("img", v)}
+                onChange={(v) => onChange("image", v)}
                 initialPath=""
               />
             </div>
