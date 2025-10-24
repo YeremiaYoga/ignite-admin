@@ -19,7 +19,7 @@ export default function CharacterFormPage({ mode = "create" }) {
   const [formData, setFormData] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(mode === "edit");
-
+ const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const steps = [
     { title: "Step 1", component: Step1 },
     { title: "Step 2", component: Step2 },
@@ -37,7 +37,7 @@ export default function CharacterFormPage({ mode = "create" }) {
     const fetchCharacter = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/characters/${id}`,
+          `${BASE_URL}/characters/${id}`,
           {
             credentials: "include",
           }
@@ -96,8 +96,8 @@ export default function CharacterFormPage({ mode = "create" }) {
 
       const url =
         mode === "edit"
-          ? `${process.env.NEXT_PUBLIC_API_URL}/characters/${id}`
-          : `${process.env.NEXT_PUBLIC_API_URL}/characters/save`;
+          ? `${BASE_URL}/characters/${id}`
+          : `${BASE_URL}/characters/save`;
 
       const res = await fetch(url, {
         method: mode === "edit" ? "PUT" : "POST",

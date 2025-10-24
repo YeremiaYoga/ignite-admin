@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -16,7 +17,7 @@ export default function LoginPage() {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/jwt-login`,
+        `${BASE_URL}/users/jwt-login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
