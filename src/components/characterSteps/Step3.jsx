@@ -2,11 +2,31 @@
 
 import InputField from "@/components/InputField";
 import MultipleInput from "@/components/MultipleInput.jsx";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, Upload } from "lucide-react";
-import { nationalityOptions, countryOptions } from "../../data/characterOptions";
+import {
+  nationalityOptions,
+  countryOptions,
+} from "../../data/characterOptions";
 
 export default function Step3({ data, allData, onChange, mode }) {
- 
+  useEffect(() => {
+    if (data.main_theme_ogg && typeof data.main_theme_ogg === "string") {
+      const mainUrl = data.main_theme_ogg.startsWith("http")
+        ? data.main_theme_ogg
+        : `${process.env.NEXT_PUBLIC_API_URL}${data.main_theme_ogg}`;
+      onChange("main_theme_ogg", mainUrl);
+    }
+
+    if (data.combat_theme_ogg && typeof data.combat_theme_ogg === "string") {
+      const combatUrl = data.combat_theme_ogg.startsWith("http")
+        ? data.combat_theme_ogg
+        : `${process.env.NEXT_PUBLIC_API_URL}${data.combat_theme_ogg}`;
+      onChange("combat_theme_ogg", combatUrl);
+    }
+
+    console.log(data.main_theme_ogg, data.combat_theme_ogg);
+  }, [data.main_theme_ogg, data.combat_theme_ogg]);
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-gray-900 text-gray-100 rounded-xl shadow-lg space-y-6">
@@ -15,12 +35,10 @@ export default function Step3({ data, allData, onChange, mode }) {
           <div className="flex items-center justify-between mb-1">
             <label className="text-sm font-medium">Appearance</label>
             <InputField
-            
               type="toggleIcon"
               value={data.appearance_visibility}
               onChange={(v) => onChange("appearance_visibility", v)}
             />
-          
           </div>
           <InputField
             label=""
@@ -205,12 +223,10 @@ export default function Step3({ data, allData, onChange, mode }) {
           <div className="flex items-center justify-between w-[92%]">
             <label className="text-sm font-medium">Hobbies</label>
             <InputField
-             
               type="toggleIcon"
               value={data.hobbies_visibility}
               onChange={(v) => onChange("hobbies_visibility", v)}
             />
-           
           </div>
           <MultipleInput
             labels=""

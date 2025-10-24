@@ -20,10 +20,45 @@ export default function Step1({ data = {}, onChange }) {
   const [privateId, setPrivateId] = useState("");
   const [publicId, setPublicId] = useState("");
 
+  console.log(data);
+
   useEffect(() => {
     const mode = Cookies.get("ignite-tales-mode");
     setTalesMode(mode === "true");
   }, []);
+
+  useEffect(() => {
+    if (!artPreview && data.art_image) {
+      setArtPreview(data.art_image);
+    }
+    if (!tokenPreview && data.token_image) {
+      setTokenPreview(data.token_image);
+    }
+
+    if (data.art_image && !data.art) onChange("art", data.art_image);
+    if (data.token_image && !data.token_art)
+      onChange("token_art", data.token_image);
+
+    if (data.main_theme_ogg && typeof data.main_theme_ogg === "string") {
+      const mainUrl = data.main_theme_ogg.startsWith("http")
+        ? data.main_theme_ogg
+        : `${process.env.NEXT_PUBLIC_API_URL}${data.main_theme_ogg}`;
+      onChange("main_theme_ogg", mainUrl);
+    }
+
+    if (data.combat_theme_ogg && typeof data.combat_theme_ogg === "string") {
+      const combatUrl = data.combat_theme_ogg.startsWith("http")
+        ? data.combat_theme_ogg
+        : `${process.env.NEXT_PUBLIC_API_URL}${data.combat_theme_ogg}`;
+      onChange("combat_theme_ogg", combatUrl);
+    }
+  }, [
+    data.art_image,
+    data.token_image,
+    data.main_theme_ogg,
+    data.combat_theme_ogg,
+  ]);
+
   useEffect(() => {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -235,13 +270,13 @@ export default function Step1({ data = {}, onChange }) {
               </button>
             </div>
             <div className="flex items-center gap-2">
-              <span className=" ">UUID : {data.private_id}</span>
+              <span className=" ">Private Id : {data.private_id}</span>
             </div>
           </div>
 
           <div className="flex items-center justify-center rounded-lg border border-gray-700 bg-gray-800 w-[230px] h-[230px] overflow-hidden">
             {artPreview ? (
-              <Image
+              <img
                 src={artPreview}
                 alt="Preview"
                 width={250}
@@ -255,7 +290,7 @@ export default function Step1({ data = {}, onChange }) {
           <div className="text-center mt-2">Art</div>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-15">
           <div className="flex items-center justify-end mb-2 text-sm font-medium text-gray-200">
             <InputField
               type="toggleIcon"
@@ -276,7 +311,7 @@ export default function Step1({ data = {}, onChange }) {
 
           <div className="flex items-center justify-center rounded-lg border border-gray-700 bg-gray-800 w-[230px] h-[230px] overflow-hidden">
             {tokenPreview ? (
-              <Image
+              <img
                 src={tokenPreview}
                 alt="Preview"
                 width={250}
