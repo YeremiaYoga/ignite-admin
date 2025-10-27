@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 export async function middleware(req) {
   const { pathname } = req.nextUrl;
 
-  // skip static assets & api routes
+  // 🚫 Skip static files, assets, API, favicon, halaman login, dll
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
@@ -15,60 +15,37 @@ export async function middleware(req) {
     return NextResponse.next();
   }
 
-  // hanya lindungi halaman dashboard
+  // 🔐 Lindungi hanya route /dashboard/*
   if (pathname.startsWith("/dashboard")) {
     const accessToken = req.cookies.get("access_token")?.value;
-    const refreshToken = req.cookies.get("refresh_token")?.value;
 
-    // kalau tidak ada token → redirect ke login
-    if (!accessToken && !refreshToken) {
+    // ⚠️ Kalau tidak ada token → redirect ke login
+    if (!accessToken) {
+      console.warn("⚠️ Tidak ada access_token, redirect ke login");
       return NextResponse.redirect(new URL("/", req.url));
     }
 
     try {
-      // verifikasi access token
+      // ✅ Verifikasi JWT
       const secret = new TextEncoder().encode(
         process.env.NEXT_PUBLIC_JWT_SECRET
       );
       await jwtVerify(accessToken, secret);
-      return NextResponse.next(); // valid → lanjut
+
+      // Token valid → lanjut
+      return NextResponse.next();
     } catch (err) {
-      console.warn("⚠️ Access token invalid/expired, mencoba refresh...");
+      console.warn("❌ Token invalid atau expired:", err.message);
 
-      // kalau access token invalid tapi masih ada refresh token
-      if (refreshToken) {
-        const refreshUrl = new URL("/api/auth/refresh", req.nextUrl.origin);
-
-        try {
-          const res = await fetch(refreshUrl, {
-            method: "POST",
-            headers: { cookie: req.headers.get("cookie") || "" },
-          });
-
-      
-
-          console.log(res);
-          if (res.ok) {
-            console.log("✅ Access token diperbarui otomatis");
-            return NextResponse.next();
-          } else {
-            console.warn("❌ Refresh gagal, redirect ke login");
-            return NextResponse.redirect(new URL("/", req.url));
-          }
-        } catch (refreshErr) {
-          console.error("❌ Refresh error:", refreshErr.message);
-          return NextResponse.redirect(new URL("/", req.url));
-        }
-      }
-
-      // kalau tidak ada refresh token → redirect login
+      // Token invalid → redirect ke login
       return NextResponse.redirect(new URL("/", req.url));
     }
   }
 
+  // Default: lanjut ke halaman lain tanpa proteksi
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*"], // hanya proteksi halaman dashboard
 };
