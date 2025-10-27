@@ -24,6 +24,7 @@ export default function Sidebar() {
 
   const logout = async () => {
     try {
+       localStorage.removeItem("access_token");
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/logout`, {
         method: "POST",
         credentials: "include",

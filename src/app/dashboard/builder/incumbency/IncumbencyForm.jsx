@@ -136,8 +136,17 @@ export default function IncumbencyForm({
       setSaving(true);
 
       const key = form.key || form.name.toLowerCase().replace(/\s+/g, "_");
+
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        alert("⚠️ Token hilang, silakan login ulang.");
+        return;
+      }
       const resCheck = await fetch(`${API_BASE}/api/incumbency/key/${key}`, {
         cache: "no-store",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       let existing = [];
@@ -164,9 +173,11 @@ export default function IncumbencyForm({
 
       const res = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(payload),
-        credentials: "include",
       });
 
       const data = await res.json();

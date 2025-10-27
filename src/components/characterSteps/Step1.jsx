@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 
 import InputField from "@/components/InputField";
 import Cookies from "js-cookie";
-import { Eye, EyeOff, Clipboard } from "lucide-react";
+import { Link, FileKey, Clipboard } from "lucide-react";
 import { countryOptions, alignmentOptions } from "../../data/characterOptions";
 
 export default function Step1({ data = {}, onChange }) {
@@ -262,15 +262,42 @@ export default function Step1({ data = {}, onChange }) {
           </div>
         </div>
         <div className="mt-[14px]">
-          <div className=" mb-2 text-sm font-medium text-gray-200">
+          <div className="mb-2 text-sm font-medium text-gray-200 space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <span className=" ">Public Id : {data.public_id}</span>
-              <button onClick={copyToClipboard}>
-                <Clipboard className="w-4 h-4 text-gray-400 hover:text-gray-200" />
+              <div className="flex items-center gap-2">
+                <div className="relative group">
+                  <Link className="w-4 h-4 " />
+                  <div className="absolute left-6 top-1/2 -translate-y-1/2 bg-slate-800 text-gray-200 text-xs px-3 py-2 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity w-80 z-10 pointer-events-none">
+                    Your Public Character ID — used to identify your character
+                    across public sheets, campaigns, constellations, and other
+                    shared data. Safe to share with people you trust.
+                  </div>
+                </div>
+
+                <span>{data.public_id}</span>
+              </div>
+
+              <button
+                onClick={() => copyToClipboard(data.public_id)}
+                className="text-gray-400 hover:text-gray-200 transition-colors"
+                title="Copy Public ID"
+              >
+                <Clipboard className="w-4 h-4" />
               </button>
             </div>
+
             <div className="flex items-center gap-2">
-              <span className=" ">Private Id : {data.private_id}</span>
+              <div className="relative group">
+                <FileKey className="w-4 h-4 " />
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 bg-slate-800 text-gray-200 text-xs px-3 py-2 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity w-96 z-10 pointer-events-none">
+                  Your Private Character ID. Do not share this with anyone
+                  except your Dungeon Master, Ignite Admin, or yourself. It
+                  works like a password for your character — anyone with this ID
+                  can edit or modify your character data.
+                </div>
+              </div>
+
+              <span>{data.private_id}</span>
             </div>
           </div>
 
@@ -290,7 +317,7 @@ export default function Step1({ data = {}, onChange }) {
           <div className="text-center mt-2">Art</div>
         </div>
 
-        <div className="mt-15">
+        <div className="mt-8">
           <div className="flex items-center justify-end mb-2 text-sm font-medium text-gray-200">
             <InputField
               type="toggleIcon"

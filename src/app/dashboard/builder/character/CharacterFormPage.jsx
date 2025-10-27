@@ -19,7 +19,7 @@ export default function CharacterFormPage({ mode = "create" }) {
   const [formData, setFormData] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(mode === "edit");
- const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const steps = [
     { title: "Step 1", component: Step1 },
     { title: "Step 2", component: Step2 },
@@ -36,12 +36,9 @@ export default function CharacterFormPage({ mode = "create" }) {
 
     const fetchCharacter = async () => {
       try {
-        const res = await fetch(
-          `${BASE_URL}/characters/${id}`,
-          {
-            credentials: "include",
-          }
-        );
+        const res = await fetch(`${BASE_URL}/characters/${id}`, {
+          credentials: "include",
+        });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Failed to load character");
         setFormData({
@@ -80,14 +77,20 @@ export default function CharacterFormPage({ mode = "create" }) {
   const nextStep = () => goToStep(currentStep + 1);
   const prevStep = () => goToStep(currentStep - 1);
 
-  // 💾 Save or Update
   const handleSubmit = async () => {
     try {
       if (!formData) return;
       setSaving(true);
 
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        alert("⚠️ Token hilang, silakan login ulang.");
+        return;
+      }
+
       const form = new FormData();
       form.append("data", JSON.stringify(formData));
+
       ["art", "token_art", "main_theme_ogg", "combat_theme_ogg"].forEach(
         (f) => {
           if (formData[f] instanceof File) form.append(f, formData[f]);
@@ -101,8 +104,10 @@ export default function CharacterFormPage({ mode = "create" }) {
 
       const res = await fetch(url, {
         method: mode === "edit" ? "PUT" : "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: form,
-        credentials: "include",
       });
 
       const result = await res.json();
@@ -112,7 +117,7 @@ export default function CharacterFormPage({ mode = "create" }) {
       router.replace("/dashboard/builder/character");
     } catch (err) {
       console.error("❌ Save error:", err);
-      alert("❌ Failed to save character.");
+      alert("❌ Failed to save character: " + err.message);
     } finally {
       setSaving(false);
     }
