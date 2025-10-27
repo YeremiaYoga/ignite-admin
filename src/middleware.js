@@ -18,7 +18,7 @@ export async function middleware(req) {
   // 🔐 Lindungi hanya route /dashboard/*
   if (pathname.startsWith("/dashboard")) {
     const accessToken = req.cookies.get("access_token")?.value;
-
+    console.log(accessToken);
     // ⚠️ Kalau tidak ada token → redirect ke login
     if (!accessToken) {
       console.warn("⚠️ Tidak ada access_token, redirect ke login");

@@ -20,17 +20,15 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-        credentials: "include",
       });
 
       const data = await res.json();
-      console.log(res);
-      if (data.success) {
-        router.replace("/dashboard"); // pakai replace agar tidak bisa back ke login
-      }
       if (!res.ok) throw new Error(data.error || "Login failed");
 
-      router.push("/dashboard");
+      // ✅ Simpan token ke localStorage
+      localStorage.setItem("access_token", data.token);
+
+      router.replace("/dashboard");
     } catch (err) {
       console.error("❌ Login error:", err);
       setError(err.message);
