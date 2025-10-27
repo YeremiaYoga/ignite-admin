@@ -27,7 +27,9 @@ export async function middleware(req) {
 
     try {
       // verifikasi access token
-      const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
+      const secret = new TextEncoder().encode(
+        process.env.NEXT_PUBLIC_JWT_SECRET
+      );
       await jwtVerify(accessToken, secret);
       return NextResponse.next(); // valid → lanjut
     } catch (err) {
@@ -35,16 +37,17 @@ export async function middleware(req) {
 
       // kalau access token invalid tapi masih ada refresh token
       if (refreshToken) {
-        const refreshUrl = `${process.env.NEXT_PUBLIC_API_URL}/users/refresh`;
+        const refreshUrl = new URL("/api/auth/refresh", req.nextUrl.origin);
 
         try {
           const res = await fetch(refreshUrl, {
             method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
+            headers: { cookie: req.headers.get("cookie") || "" },
           });
 
-          // kalau refresh sukses → lanjut
+      
+
+          console.log(res);
           if (res.ok) {
             console.log("✅ Access token diperbarui otomatis");
             return NextResponse.next();

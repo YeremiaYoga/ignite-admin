@@ -16,21 +16,19 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(
-        `${BASE_URL}/users/jwt-login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-          credentials: "include", 
-        }
-      );
+      const res = await fetch(`${BASE_URL}/users/jwt-login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+        credentials: "include",
+      });
 
       const data = await res.json();
       console.log(res);
-
+      if (data.success) {
+        router.replace("/dashboard"); // pakai replace agar tidak bisa back ke login
+      }
       if (!res.ok) throw new Error(data.error || "Login failed");
-
 
       router.push("/dashboard");
     } catch (err) {
