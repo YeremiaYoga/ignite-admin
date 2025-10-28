@@ -714,8 +714,8 @@ export default function Step1({ data = {}, onChange }) {
             <InputField
               label="Background"
               type="selectSearch"
-              value={data.backgrounds}
-              onChange={(val) => onChange("backgrounds", val)}
+              value={data.background_id}
+              onChange={(val) => onChange("background_id", val)}
               placeholder={
                 backgroundOptions.length ? "Select Background" : "Loading..."
               }

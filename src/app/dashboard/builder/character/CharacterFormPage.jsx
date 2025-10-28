@@ -19,6 +19,7 @@ export default function CharacterFormPage({ mode = "create" }) {
   const [formData, setFormData] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(mode === "edit");
+
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const steps = [
     { title: "Step 1", component: Step1 },
@@ -28,6 +29,7 @@ export default function CharacterFormPage({ mode = "create" }) {
     { title: "Step 5", component: Step5 },
   ];
 
+  // === Fetch character jika edit ===
   useEffect(() => {
     if (mode !== "edit" || !id) {
       setFormData(getDefaultForm());
@@ -36,11 +38,22 @@ export default function CharacterFormPage({ mode = "create" }) {
 
     const fetchCharacter = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/characters/${id}`, {
-          credentials: "include",
+        const token = localStorage.getItem("admin_token");
+        if (!token) {
+          alert("⚠️ Token admin hilang, silakan login ulang.");
+          router.replace("/");
+          return;
+        }
+
+        const res = await fetch(`${BASE_URL}/admin/character/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
+
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Failed to load character");
+
         setFormData({
           ...getDefaultForm(),
           ...json,
@@ -57,6 +70,7 @@ export default function CharacterFormPage({ mode = "create" }) {
         setLoading(false);
       }
     };
+
     fetchCharacter();
   }, [mode, id]);
 
@@ -77,20 +91,23 @@ export default function CharacterFormPage({ mode = "create" }) {
   const nextStep = () => goToStep(currentStep + 1);
   const prevStep = () => goToStep(currentStep - 1);
 
+  // === SAVE CHARACTER (ADMIN) ===
   const handleSubmit = async () => {
     try {
       if (!formData) return;
       setSaving(true);
 
-      const token = localStorage.getItem("access_token");
+      const token = localStorage.getItem("admin_token");
       if (!token) {
         alert("⚠️ Token hilang, silakan login ulang.");
+        router.replace("/");
         return;
       }
 
       const form = new FormData();
       form.append("data", JSON.stringify(formData));
 
+      // Tambahkan file
       ["art", "token_art", "main_theme_ogg", "combat_theme_ogg"].forEach(
         (f) => {
           if (formData[f] instanceof File) form.append(f, formData[f]);
@@ -99,8 +116,8 @@ export default function CharacterFormPage({ mode = "create" }) {
 
       const url =
         mode === "edit"
-          ? `${BASE_URL}/characters/${id}`
-          : `${BASE_URL}/characters/save`;
+          ? `${BASE_URL}/admin/character/${id}`
+          : `${BASE_URL}/admin/character/save`;
 
       const res = await fetch(url, {
         method: mode === "edit" ? "PUT" : "POST",
@@ -113,7 +130,7 @@ export default function CharacterFormPage({ mode = "create" }) {
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || "Save failed");
 
-      alert(`✅ Character ${mode === "edit" ? "updated" : "saved"}!`);
+      alert(`✅ Character ${mode === "edit" ? "updated" : "saved"} successfully!`);
       router.replace("/dashboard/builder/character");
     } catch (err) {
       console.error("❌ Save error:", err);
@@ -134,16 +151,17 @@ export default function CharacterFormPage({ mode = "create" }) {
 
   return (
     <main className="mx-auto px-4 py-8 text-white min-h-screen">
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <button
-          onClick={() => router.push("/dashboard/builder/character")}
+          onClick={() => router.push("/dashboard/characters")}
           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded shadow text-sm"
         >
           ← Back
         </button>
 
         <h1 className="text-2xl font-bold text-center flex-1">
-          {mode === "edit" ? "Edit Character" : "Create Character"}
+          [Admin Panel] {mode === "edit" ? "Edit Character" : "Create Character"}
         </h1>
 
         <div className="w-[80px]" />
@@ -223,7 +241,7 @@ export default function CharacterFormPage({ mode = "create" }) {
   );
 }
 
-// default form factory
+// Default form factory
 function getDefaultForm() {
   return {
     name: "",
@@ -254,7 +272,6 @@ function getDefaultForm() {
     wiki_visibility: false,
     weight_unit: "imperial",
     height_unit: "imperial",
-
     backstory_visibility: false,
     backstory: "",
     voice_style: "",

@@ -8,7 +8,7 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem("admin_token");
 
     if (!token) {
       router.replace("/");
@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }) {
 
     //     if (!res.ok) {
     //       console.warn("⚠️ Token invalid/expired, logout otomatis");
-    //       localStorage.removeItem("access_token");
+    //       localStorage.removeItem("admin_token");
     //       router.replace("/");
     //     }
     //   } catch (err) {

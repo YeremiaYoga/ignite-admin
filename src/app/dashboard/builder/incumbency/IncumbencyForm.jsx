@@ -137,7 +137,7 @@ export default function IncumbencyForm({
 
       const key = form.key || form.name.toLowerCase().replace(/\s+/g, "_");
 
-      const token = localStorage.getItem("access_token");
+      const token = localStorage.getItem("admin_token");
       if (!token) {
         alert("⚠️ Token hilang, silakan login ulang.");
         return;

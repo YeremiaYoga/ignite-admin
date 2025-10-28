@@ -25,8 +25,7 @@ export default function LoginPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Login failed");
 
-      // ✅ Simpan token ke localStorage
-      localStorage.setItem("access_token", data.token);
+      localStorage.setItem("admin_token", data.token);
 
       router.replace("/dashboard");
     } catch (err) {
