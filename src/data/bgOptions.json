@@ -1,0 +1,49 @@
+{
+  "abilityScoresOptions": [
+    { "value": "Strength", "label": "Strength" },
+    { "value": "Dexterity", "label": "Dexterity" },
+    { "value": "Constitution", "label": "Constitution" },
+    { "value": "Intelligence", "label": "Intelligence" },
+    { "value": "Wisdom", "label": "Wisdom" },
+    { "value": "Charisma", "label": "Charisma" }
+  ],
+  "tagsOptions": [
+    { "value": "Adventurers League", "label": "Adventurers League" },
+    { "value": "Buff", "label": "Buff" },
+    { "value": "Combat", "label": "Combat" },
+    { "value": "Control", "label": "Control" },
+    { "value": "Damage", "label": "Damage" },
+    { "value": "Deception", "label": "Deception" },
+    { "value": "Detection", "label": "Detection" },
+    { "value": "Exploration", "label": "Exploration" },
+    { "value": "Guild", "label": "Guild" },
+    { "value": "Healing", "label": "Healing" },
+    { "value": "Monstrous", "label": "Monstrous" },
+    { "value": "Movement", "label": "Movement" },
+    { "value": "Religious", "label": "Religious" },
+    { "value": "Social", "label": "Social" },
+    { "value": "Species Feat", "label": "Species Feat" },
+    { "value": "Utility", "label": "Utility" },
+    { "value": "Warding", "label": "Warding" }
+  ],
+  "skillsOptions": [
+    { "value": "Acrobatics", "label": "Acrobatics" },
+    { "value": "Animal Handling", "label": "Animal Handling" },
+    { "value": "Arcana", "label": "Arcana" },
+    { "value": "Athletics", "label": "Athletics" },
+    { "value": "Deception", "label": "Deception" },
+    { "value": "History", "label": "History" },
+    { "value": "Insight", "label": "Insight" },
+    { "value": "Intimidation", "label": "Intimidation" },
+    { "value": "Investigation", "label": "Investigation" },
+    { "value": "Medicine", "label": "Medicine" },
+    { "value": "Nature", "label": "Nature" },
+    { "value": "Perception", "label": "Perception" },
+    { "value": "Performance", "label": "Performance" },
+    { "value": "Persuasion", "label": "Persuasion" },
+    { "value": "Religion", "label": "Religion" },
+    { "value": "Sleight of Hand", "label": "Sleight of Hand" },
+    { "value": "Stealth", "label": "Stealth" },
+    { "value": "Survival", "label": "Survival" }
+  ]
+}

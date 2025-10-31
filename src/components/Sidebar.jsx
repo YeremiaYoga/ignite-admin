@@ -45,7 +45,7 @@ export default function Sidebar() {
         { label: "Character", href: "/dashboard/builder/character" },
         { label: "Race", href: "/dashboard/builder/race" },
         { label: "Subrace", href: "/dashboard/builder/subrace" },
-        { label: "Background", href: "/dashboard/builder/subrace" },
+        { label: "Background", href: "/dashboard/builder/background" },
         { label: "Feat", href: "/dashboard/builder/feat" },
         { label: "Spell", href: "/dashboard/builder/spell" },
         { label: "Incumbency", href: "/dashboard/builder/incumbency" },
