@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Home,
+  Users,
   Hammer,
   Settings,
   LogOut,
@@ -24,7 +25,7 @@ export default function Sidebar() {
 
   const logout = async () => {
     try {
-       localStorage.removeItem("access_token");
+      localStorage.removeItem("access_token");
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/logout`, {
         method: "POST",
         credentials: "include",
@@ -38,6 +39,7 @@ export default function Sidebar() {
 
   const menuItems = [
     { label: "Home", icon: Home, href: "/dashboard" },
+    { label: "User Management", icon: Users, href: "/dashboard/user-management" },
     {
       label: "Builder",
       icon: Hammer,

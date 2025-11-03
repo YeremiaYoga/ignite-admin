@@ -58,7 +58,7 @@ export default function CharacterBuilderPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Characters</h1>
         <button
-          onClick={() => router.push("/dashboard/builder/character/create")}
+          onClick={() => router.push("/dashboard/builder/character")}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
         >
           <Plus size={18} /> Create
