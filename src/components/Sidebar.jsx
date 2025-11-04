@@ -39,7 +39,16 @@ export default function Sidebar() {
 
   const menuItems = [
     { label: "Home", icon: Home, href: "/dashboard" },
-    { label: "User Management", icon: Users, href: "/dashboard/user-management" },
+    {
+      label: "User Management",
+      icon: Users,
+      href: "/dashboard/user-management",
+    },
+    {
+      label: "Tier Management",
+      icon: Users,
+      href: "/dashboard/tier-management",
+    },
     {
       label: "Builder",
       icon: Hammer,

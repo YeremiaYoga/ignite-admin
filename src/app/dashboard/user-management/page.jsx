@@ -4,20 +4,22 @@ import { useState, useEffect } from "react";
 import UserTable from "./UserTable";
 import UserFormModal from "./UserFormModal";
 import UserViewModal from "./UserViewModal";
-import ConfirmDeleteModal from "./ConfirmDeleteModal";
-import { Loader2, PlusCircle } from "lucide-react";
+import ConfirmModal from "@/components/ConfirmModal";
+import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [modalType, setModalType] = useState(null); // "add" | "edit" | "view" | "delete"
   const [selectedUser, setSelectedUser] = useState(null);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  // 🔄 Fetch all users
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users`, {
+      const res = await fetch(`${API_URL}/admin/users`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("admin_token")}`,
         },
@@ -47,12 +49,13 @@ export default function UserManagementPage() {
     setSelectedUser(null);
   };
 
+  // 💾 Create / Update
   const handleSave = async (formData) => {
     try {
       const method = formData.id ? "PUT" : "POST";
       const url = formData.id
-        ? `${process.env.NEXT_PUBLIC_API_URL}/admin/users/${formData.id}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/admin/users`;
+        ? `${API_URL}/admin/users/${formData.id}`
+        : `${API_URL}/admin/users`;
 
       const res = await fetch(url, {
         method,
@@ -74,9 +77,10 @@ export default function UserManagementPage() {
     }
   };
 
-  const handleDelete = async (id) => {
+  // 🗑️ Delete
+  const handleDelete = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users/${id}`, {
+      const res = await fetch(`${API_URL}/admin/users/${selectedUser.id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("admin_token")}`,
@@ -84,6 +88,7 @@ export default function UserManagementPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Gagal hapus user");
+
       alert("✅ User berhasil dihapus!");
       closeModal();
       fetchUsers();
@@ -95,6 +100,7 @@ export default function UserManagementPage() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 p-6">
       <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 space-y-4">
+        {/* HEADER */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">User Management</h1>
           <button
@@ -106,6 +112,7 @@ export default function UserManagementPage() {
           </button>
         </div>
 
+        {/* TABLE */}
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="animate-spin w-6 h-6 text-emerald-500" />
@@ -120,21 +127,34 @@ export default function UserManagementPage() {
         )}
       </div>
 
-      {modalType === "add" || modalType === "edit" ? (
+      {/* CREATE / EDIT */}
+      {(modalType === "add" || modalType === "edit") && (
         <UserFormModal
           user={selectedUser}
           onClose={closeModal}
           onSave={handleSave}
         />
-      ) : modalType === "view" ? (
+      )}
+
+      {/* VIEW */}
+      {modalType === "view" && (
         <UserViewModal user={selectedUser} onClose={closeModal} />
-      ) : modalType === "delete" ? (
-        <ConfirmDeleteModal
-          user={selectedUser}
+      )}
+
+      {/* DELETE CONFIRM */}
+      {modalType === "delete" && selectedUser && (
+        <ConfirmModal
+          title="Delete User"
+          message={`Are you sure you want to delete user "${selectedUser.username}"?`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          confirmColor="red"
+          loadingText="Deleting..."
+          icon={Trash2}
+          onConfirm={handleDelete}
           onClose={closeModal}
-          onConfirm={() => handleDelete(selectedUser.id)}
         />
-      ) : null}
+      )}
     </main>
   );
 }
