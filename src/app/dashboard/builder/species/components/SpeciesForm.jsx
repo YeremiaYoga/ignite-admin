@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Upload, ImageIcon } from "lucide-react";
 import InputField from "@/components/InputField";
 import RichTextAdvanced from "@/components/RichTextAdvanced";
 
 export default function SpeciesForm({ data, onClose }) {
   const [form, setForm] = useState({
     name: "",
+    icon: null,
     img: null,
     main_img: null,
     source: null,
@@ -21,11 +23,11 @@ export default function SpeciesForm({ data, onClose }) {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Update form kalau props data berubah (fix edit mode)
   useEffect(() => {
     if (data) {
       setForm({
         name: data.name || "",
+        icon: null,
         img: null,
         main_img: null,
         source: data.source || null,
@@ -37,9 +39,9 @@ export default function SpeciesForm({ data, onClose }) {
         public: data.public ?? false,
       });
     } else {
-      // reset kalau tambah baru
       setForm({
         name: "",
+        icon: null,
         img: null,
         main_img: null,
         source: null,
@@ -53,7 +55,6 @@ export default function SpeciesForm({ data, onClose }) {
     }
   }, [data]);
 
-  // 🔁 Fetch Source & Group Type
   useEffect(() => {
     const fetchOptions = async () => {
       try {
@@ -95,6 +96,7 @@ export default function SpeciesForm({ data, onClose }) {
 
       const formData = new FormData();
       formData.append("data", JSON.stringify(form));
+      if (form.icon) formData.append("icon", form.icon);
       if (form.img) formData.append("img", form.img);
       if (form.main_img) formData.append("main_img", form.main_img);
 
@@ -122,7 +124,6 @@ export default function SpeciesForm({ data, onClose }) {
 
   return (
     <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 space-y-6">
-      {/* ✅ Name */}
       <InputField
         label="Name"
         value={form.name}
@@ -130,19 +131,43 @@ export default function SpeciesForm({ data, onClose }) {
         placeholder="Enter species name"
       />
 
-      {/* ✅ Image Upload with Preview */}
+      {/* ✅ Icon Upload */}
+      <div>
+        <label className="block text-sm mb-1 text-gray-300">Icon</label>
+        <label className="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-md cursor-pointer hover:bg-gray-700 w-fit">
+          <ImageIcon className="w-4 h-4 text-emerald-400" />
+          <span className="text-sm text-gray-200">Choose Icon</span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleFileChange("icon", e.target.files[0])}
+            className="hidden"
+          />
+        </label>
+        {(form.icon_preview || data?.icon) && (
+          <img
+            src={form.icon_preview || data?.icon}
+            alt="icon preview"
+            className="mt-2 w-12 h-12 object-cover rounded border border-gray-700"
+          />
+        )}
+      </div>
+
+      {/* ✅ Image Uploads */}
       <div className="grid grid-cols-2 gap-4">
         {/* Image */}
         <div>
           <label className="block text-sm mb-1 text-gray-300">Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFileChange("img", e.target.files[0])}
-            className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-3 
-                       file:rounded-md file:border-0 file:text-sm file:font-semibold 
-                       file:bg-emerald-700 file:text-white hover:file:bg-emerald-600"
-          />
+          <label className="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-md cursor-pointer hover:bg-gray-700 w-fit">
+            <Upload className="w-4 h-4 text-emerald-400" />
+            <span className="text-sm text-gray-200">Choose Image</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFileChange("img", e.target.files[0])}
+              className="hidden"
+            />
+          </label>
           {(form.img_preview || data?.img) && (
             <img
               src={form.img_preview || data?.img}
@@ -155,14 +180,16 @@ export default function SpeciesForm({ data, onClose }) {
         {/* Main Image */}
         <div>
           <label className="block text-sm mb-1 text-gray-300">Main Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFileChange("main_img", e.target.files[0])}
-            className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-3 
-                       file:rounded-md file:border-0 file:text-sm file:font-semibold 
-                       file:bg-emerald-700 file:text-white hover:file:bg-emerald-600"
-          />
+          <label className="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-md cursor-pointer hover:bg-gray-700 w-fit">
+            <Upload className="w-4 h-4 text-emerald-400" />
+            <span className="text-sm text-gray-200">Choose Main Image</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFileChange("main_img", e.target.files[0])}
+              className="hidden"
+            />
+          </label>
           {(form.main_img_preview || data?.main_img) && (
             <img
               src={form.main_img_preview || data?.main_img}
@@ -175,7 +202,6 @@ export default function SpeciesForm({ data, onClose }) {
 
       {/* ✅ Source & Group Type */}
       <div className="grid grid-cols-2 gap-4">
-        {/* Source */}
         <div>
           <label className="block text-sm mb-1 text-gray-300">Source</label>
           <select
@@ -192,7 +218,6 @@ export default function SpeciesForm({ data, onClose }) {
           </select>
         </div>
 
-        {/* Group Type */}
         <div>
           <label className="block text-sm mb-1 text-gray-300">Group Type</label>
           <select
@@ -250,7 +275,6 @@ export default function SpeciesForm({ data, onClose }) {
         />
       </div>
 
-      {/* ✅ Buttons */}
       <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
         <button
           onClick={onClose}

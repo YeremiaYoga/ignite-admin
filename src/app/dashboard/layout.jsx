@@ -15,7 +15,6 @@ export default function DashboardLayout({ children }) {
       return;
     }
 
-    console.log(token);
     // (async () => {
     //   try {
     //     const res = await fetch(

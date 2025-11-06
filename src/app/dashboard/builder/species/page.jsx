@@ -130,7 +130,7 @@ export default function SpeciesPage() {
           title="Delete Species"
           message={`Are you sure you want to delete "${selected?.name}"? This action cannot be undone.`}
           onConfirm={confirmDelete}
-          onCancel={() => setShowDelete(false)}
+          onClose={() => setShowDelete(false)}
         />
       )}
     </div>

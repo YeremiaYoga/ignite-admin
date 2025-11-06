@@ -1,11 +1,8 @@
-export default function SpeciesTable({
-  species,
-  onEdit,
-  onDelete,
-  onView,
-  onOptions,
-  onModifier,
-}) {
+import { useRouter } from "next/navigation";
+
+export default function SpeciesTable({ species, onEdit, onDelete, onView }) {
+  const router = useRouter();
+
   if (!species?.length)
     return <p className="text-gray-400">No species found.</p>;
 
@@ -34,7 +31,7 @@ export default function SpeciesTable({
                 {item.img ? (
                   <img
                     src={item.img}
-                    alt={`${item.name} img`}
+                    alt={item.name}
                     className="w-12 h-12 object-cover rounded border border-gray-700 hover:scale-110 transition-transform"
                   />
                 ) : (
@@ -49,7 +46,7 @@ export default function SpeciesTable({
                 {item.main_img ? (
                   <img
                     src={item.main_img}
-                    alt={`${item.name} main_img`}
+                    alt={`${item.name} main`}
                     className="w-12 h-12 object-cover rounded border border-gray-700 hover:scale-110 transition-transform"
                   />
                 ) : (
@@ -73,20 +70,11 @@ export default function SpeciesTable({
               {/* 🧩 Actions */}
               <td className="px-3 py-2 text-right">
                 <div className="flex justify-end gap-2 flex-wrap">
-                  {/* ⚙️ Options */}
                   <button
-                    onClick={() => onOptions?.(item)}
+                    onClick={() => router.push(`/dashboard/builder/species/${item.slug}`)}
                     className="px-2 py-1 text-xs bg-amber-600 hover:bg-amber-700 rounded"
                   >
-                    Options
-                  </button>
-
-                  {/* 🧑 Modifier */}
-                  <button
-                    onClick={() => onModifier?.(item)}
-                    className="px-2 py-1 text-xs bg-purple-600 hover:bg-purple-700 rounded"
-                  >
-                    Modifier
+                    Traits
                   </button>
 
                   <button
@@ -96,17 +84,15 @@ export default function SpeciesTable({
                     View
                   </button>
 
-                  {/* ✏️ Edit */}
                   <button
-                    onClick={() => onEdit(item)}
+                    onClick={() => onEdit?.(item)}
                     className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded"
                   >
                     Edit
                   </button>
 
-                  {/* 🗑️ Delete */}
                   <button
-                    onClick={() => onDelete(item)}
+                    onClick={() => onDelete?.(item)}
                     className="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 rounded"
                   >
                     Delete
