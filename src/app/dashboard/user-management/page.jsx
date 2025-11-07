@@ -99,7 +99,7 @@ export default function UserManagementPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 p-6">
-      <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 space-y-4">
+      <div className="w-full mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 space-y-4">
         {/* HEADER */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">User Management</h1>

@@ -71,7 +71,7 @@ export default function SpeciesTable({ species, onEdit, onDelete, onView }) {
               <td className="px-3 py-2 text-right">
                 <div className="flex justify-end gap-2 flex-wrap">
                   <button
-                    onClick={() => router.push(`/dashboard/builder/species/${item.slug}`)}
+                    onClick={() => router.push(`/dashboard/species-management/${item.slug}`)}
                     className="px-2 py-1 text-xs bg-amber-600 hover:bg-amber-700 rounded"
                   >
                     Traits

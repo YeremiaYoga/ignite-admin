@@ -50,6 +50,11 @@ export default function Sidebar() {
       href: "/dashboard/tier-management",
     },
     {
+      label: "Species Management",
+      icon: Users,
+      href: "/dashboard/species-management",
+    },
+    {
       label: "Builder",
       icon: Hammer,
       children: [
@@ -60,7 +65,7 @@ export default function Sidebar() {
         { label: "Feat", href: "/dashboard/builder/feat" },
         { label: "Spell", href: "/dashboard/builder/spell" },
         { label: "Incumbency", href: "/dashboard/builder/incumbency" },
-        { label: "Species", href: "/dashboard/builder/species" },
+        { label: "Modifier", href: "/dashboard/builder/modifier" },
       ],
     },
     { label: "Setting", icon: Settings, href: "/dashboard/setting" },

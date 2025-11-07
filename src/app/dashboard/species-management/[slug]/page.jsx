@@ -119,7 +119,7 @@ export default function SpeciesTraitsPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => router.push("/dashboard/builder/species")}
+            onClick={() => router.push("/dashboard/species-management")}
             className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm"
           >
             ← Back
@@ -147,6 +147,7 @@ export default function SpeciesTraitsPage() {
         <TraitFormModal
           data={selectedTrait}
           species={species}
+          traits={traits} 
           onClose={() => {
             setShowModal(false);
             fetchSpecies();

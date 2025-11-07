@@ -3,25 +3,24 @@
 import { useState, useEffect } from "react";
 import InputField from "@/components/InputField";
 import RichTextAdvanced from "@/components/RichTextAdvanced";
+import TraitOptionsSection from "./TraitOptionsSection";
+import TraitModifiersSection from "./TraitModifiersSection";
 
-/**
- * 🔹 TraitFormModal
- * Modal CRUD untuk tabel `species_traits`
- * otomatis kirim `species_id` & `species_name` dari prop `species`
- */
-export default function TraitFormModal({ data, species, onClose, onSaved }) {
+export default function TraitFormModal({ data, species, traits = [], onClose, onSaved }) {
   const [form, setForm] = useState({
     name: "",
     display_order: 0,
     description: "",
     has_options: false,
     options: [],
-    scope: "specific",
+    has_modifiers: false,
+    modifiers: [],
+    scope: "generic",
   });
 
   const [loading, setLoading] = useState(false);
 
-  /** 🔁 Jika edit mode → isi data */
+  // 🔁 Populate edit data
   useEffect(() => {
     if (data) {
       setForm({
@@ -30,7 +29,9 @@ export default function TraitFormModal({ data, species, onClose, onSaved }) {
         description: data.description || "",
         has_options: data.has_options ?? false,
         options: data.options || [],
-        scope: data.scope || "specific",
+        has_modifiers: data.has_modifiers ?? false,
+        modifiers: data.modifiers || [],
+        scope: data.scope || "generic",
       });
     } else {
       setForm({
@@ -39,35 +40,52 @@ export default function TraitFormModal({ data, species, onClose, onSaved }) {
         description: "",
         has_options: false,
         options: [],
-        scope: "specific",
+        has_modifiers: false,
+        modifiers: [],
+        scope: "generic",
       });
     }
   }, [data]);
 
-  const handleChange = (key, val) => setForm((p) => ({ ...p, [key]: val }));
+  // 🧩 Generic field change
+  const handleChange = (key, val) =>
+    setForm((prev) => ({ ...prev, [key]: val }));
 
-  /** 🧩 Manajemen Option */
-  const addOption = () => {
+  // 🧩 Option management
+  const addOption = () =>
     setForm((p) => ({
       ...p,
-      options: [...p.options, { name: "", description: "" }],
+      options: [
+        ...p.options,
+        {
+          name: "",
+          description: "",
+          prerequisite_option: "",
+          required_level: 0,
+        },
+      ],
     }));
-  };
 
-  const updateOption = (index, key, value) => {
+  const updateOption = (i, key, val) => {
     const updated = [...form.options];
-    updated[index][key] = value;
+    updated[i][key] = val;
     setForm((p) => ({ ...p, options: updated }));
   };
 
-  const removeOption = (index) => {
+  const removeOption = (i) =>
     setForm((p) => ({
       ...p,
-      options: p.options.filter((_, i) => i !== index),
+      options: p.options.filter((_, idx) => idx !== i),
     }));
+
+  // 🧩 Modifier management
+  const updateModifier = (i, key, val) => {
+    const updated = [...(form.modifiers || [])];
+    updated[i][key] = val;
+    setForm((p) => ({ ...p, modifiers: updated }));
   };
 
-  /** 💾 Save (Create/Update) */
+  // 💾 Save to API
   const handleSave = async () => {
     try {
       setLoading(true);
@@ -111,7 +129,7 @@ export default function TraitFormModal({ data, species, onClose, onSaved }) {
   // -------------------------------------------------------------------------
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-full max-w-4xl space-y-6 relative overflow-y-auto max-h-[90vh]">
+      <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-full max-w-6xl space-y-6 relative overflow-y-auto max-h-[90vh]">
         {/* HEADER */}
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold text-white">
@@ -167,91 +185,24 @@ export default function TraitFormModal({ data, species, onClose, onSaved }) {
           />
         </div>
 
-        {/* TOGGLE OPTIONS */}
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-300">Has Options</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.has_options}
-              onChange={(e) => handleChange("has_options", e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-emerald-600 transition-colors"></div>
-            <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transform peer-checked:translate-x-5 transition-transform"></div>
-          </label>
-        </div>
+        {/* OPTIONS SECTION */}
+         <TraitOptionsSection
+          form={form}
+          onChange={handleChange}
+          addOption={addOption}
+          updateOption={updateOption}
+          removeOption={removeOption}
+          species={species}
+          traits={traits} 
+          currentTraitId={data?.id}
+        />
 
-        {/* OPTIONS */}
-        {form.has_options && (
-          <div className="space-y-3 mt-3 border-t border-gray-700 pt-3">
-            <div className="flex justify-between items-center">
-              <h3 className="text-sm text-gray-200 font-medium">
-                Trait Options
-              </h3>
-              <button
-                onClick={addOption}
-                className="bg-emerald-600 hover:bg-emerald-700 px-3 py-1 text-sm rounded text-white"
-              >
-                + Add Option
-              </button>
-            </div>
-
-            {form.options.length === 0 && (
-              <p className="text-gray-400 text-sm">No options yet.</p>
-            )}
-
-            {form.options.map((opt, i) => (
-              <div
-                key={i}
-                className="border border-gray-700 rounded-lg p-4 bg-gray-800 shadow-sm hover:bg-gray-750 transition-colors"
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="text-sm font-semibold text-gray-100">
-                    Option #{i + 1}
-                  </h4>
-                  <button
-                    onClick={() => removeOption(i)}
-                    className="text-red-400 hover:text-red-500 text-sm flex items-center gap-1"
-                    title="Remove this option"
-                  >
-                    ✕ <span className="hidden sm:inline">Remove</span>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-gray-400 mb-1">
-                      Option Name
-                    </label>
-                    <input
-                      type="text"
-                      value={opt.name}
-                      onChange={(e) => updateOption(i, "name", e.target.value)}
-                      placeholder="e.g. Longsword"
-                      className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-200 focus:ring-2 focus:ring-emerald-500 outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs text-gray-400 mb-1">
-                      Description
-                    </label>
-                    <textarea
-                      value={opt.description}
-                      onChange={(e) =>
-                        updateOption(i, "description", e.target.value)
-                      }
-                      placeholder="Describe this option..."
-                      rows={2}
-                      className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-200 focus:ring-2 focus:ring-emerald-500 outline-none resize-none"
-                    ></textarea>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* MODIFIERS SECTION */}
+        <TraitModifiersSection
+          form={form}
+          handleChange={handleChange}       // ✅ perbaikan: prop namanya sama
+          updateModifier={updateModifier}
+        />
 
         {/* FOOTER */}
         <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
