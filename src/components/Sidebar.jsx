@@ -39,6 +39,7 @@ export default function Sidebar() {
 
   const menuItems = [
     { label: "Home", icon: Home, href: "/dashboard" },
+    { label: "Announcement", icon: Home, href: "/dashboard/announcement" },
     {
       label: "User Management",
       icon: Users,
@@ -66,6 +67,8 @@ export default function Sidebar() {
         { label: "Spell", href: "/dashboard/builder/spell" },
         { label: "Incumbency", href: "/dashboard/builder/incumbency" },
         { label: "Modifier", href: "/dashboard/builder/modifier" },
+        { label: "Theme Campaign", href: "/dashboard/builder/theme-campaign" },
+        { label: "Genre Campaign", href: "/dashboard/builder/genre-campaign" },
       ],
     },
     { label: "Setting", icon: Settings, href: "/dashboard/setting" },
