@@ -73,14 +73,14 @@ export default function ThemeTable({
                       </button>
                     )}
                     <button
-                      //   onClick={() => onEdit(item)}
+                        onClick={() => onEdit(item)}
                       className="text-yellow-400 hover:text-yellow-300 transition-colors"
                       title="Edit"
                     >
                       <Pencil size={18} />
                     </button>
                     <button
-                      //   onClick={() => onDelete(item)}
+                        onClick={() => onDelete(item)}
                       className="text-red-500 hover:text-red-400 transition-colors"
                       title="Delete"
                     >

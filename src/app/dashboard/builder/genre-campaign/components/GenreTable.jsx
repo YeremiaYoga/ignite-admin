@@ -63,7 +63,7 @@ export default function GenreTable({ data = [], loading, onEdit, onDelete }) {
                 <td className="py-3 px-4 text-center">
                   <div className="flex justify-center gap-3">
                     <button
-                      //   onClick={() => onEdit(item)}
+                        onClick={() => onEdit(item)}
                       className="text-yellow-400 hover:text-yellow-300 transition-colors"
                       title="Edit"
                     >
@@ -71,7 +71,7 @@ export default function GenreTable({ data = [], loading, onEdit, onDelete }) {
                     </button>
 
                     <button
-                      //   onClick={() => onDelete(item)}
+                        onClick={() => onDelete(item)}
                       className="text-red-500 hover:text-red-400 transition-colors"
                       title="Delete"
                     >

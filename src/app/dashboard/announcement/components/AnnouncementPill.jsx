@@ -12,9 +12,9 @@ const BASE_URL =
 export default function AnnouncementPill({
   position,
   className = "",
-  endpoint,                // optional override API base
-  iconPxOverride,          // preview-only: override icon px
-  imagePxOverride,         // preview-only: override image px
+  endpoint,               
+  iconPxOverride,          
+  imagePxOverride,         
 }) {
   const [item, setItem] = useState(null);
 

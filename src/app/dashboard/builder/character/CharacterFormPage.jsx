@@ -154,7 +154,7 @@ export default function CharacterFormPage({ mode = "create" }) {
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <button
-          onClick={() => router.push("/dashboard/characters")}
+          onClick={() => router.push("/dashboard/builder/character")}
           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded shadow text-sm"
         >
           ← Back

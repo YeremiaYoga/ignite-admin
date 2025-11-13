@@ -35,12 +35,21 @@ export default function AnnouncementBuilder() {
 
   const fetchList = async () => {
     setLoading(true);
+
     try {
-      const res = await fetch(`${API_BASE}/admin/announcements`);
+      // const token = localStorage.getItem("admin_token");
+      const token = localStorage.getItem("admin_token123");
+      const res = await fetch(`${API_BASE}/admin/announcements`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+
       const json = await res.json();
       setRows(json?.data || []);
     } catch (e) {
-      console.error(e);
+      console.error("❌ Fetch announcements failed:", e);
     } finally {
       setLoading(false);
     }
@@ -117,7 +126,10 @@ export default function AnnouncementBuilder() {
               </tr>
             ) : rows.length > 0 ? (
               rows.map((r) => (
-                <tr key={r.id} className="border-t border-gray-800 hover:bg-gray-900/40">
+                <tr
+                  key={r.id}
+                  className="border-t border-gray-800 hover:bg-gray-900/40"
+                >
                   <td className="px-3 py-2">{String(r.active)}</td>
                   <td className="px-3 py-2 capitalize">{r.position}</td>
                   <td className="px-3 py-2">{r.name}</td>
@@ -127,18 +139,18 @@ export default function AnnouncementBuilder() {
                   </td>
                   <td className="px-3 py-2 text-right space-x-2">
                     <button
-                      onClick={() => {
-                        setEditingData(r);
-                        setForm({ ...r, imageFile: null });
-                        setModalOpen(true);
-                      }}
+                      // onClick={() => {
+                      //   setEditingData(r);
+                      //   setForm({ ...r, imageFile: null });
+                      //   setModalOpen(true);
+                      // }}
                       className="px-2 py-1 rounded bg-amber-700 hover:bg-amber-600 border border-amber-700 inline-flex items-center gap-1"
                     >
                       <Pencil className="w-4 h-4" />
                       Edit
                     </button>
                     <button
-                      onClick={() => deleteRow(r.id)}
+                      // onClick={() => deleteRow(r.id)}
                       className="px-2 py-1 rounded bg-rose-700 hover:bg-rose-600 border border-rose-700 inline-flex items-center gap-1"
                     >
                       <Trash2 className="w-4 h-4" />
