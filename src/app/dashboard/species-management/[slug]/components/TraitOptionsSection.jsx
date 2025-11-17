@@ -28,20 +28,26 @@ export default function TraitOptionsSection({
     });
   }, [traits, currentTraitId]);
 
-  // 🔹 Fetch daftar modifier global
+  // 🔹 Fetch daftar modifier global (hanya yang target_for mengandung "species")
   useEffect(() => {
     const fetchTraitModifiers = async () => {
       try {
         const token = localStorage.getItem("admin_token");
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/admin/trait-modifier`,
+          `${process.env.NEXT_PUBLIC_API_URL}/admin/modifiers`,
           {
             headers: { Authorization: token ? `Bearer ${token}` : "" },
           }
         );
         if (!res.ok) throw new Error("Failed to fetch modifiers");
         const data = await res.json();
-        setTraitModifiers(data || []);
+
+        // ❗ hanya ambil modifier yang memang ditargetkan untuk species
+        const filtered = (data || []).filter(
+          (m) => Array.isArray(m.target_for) && m.target_for.includes("species")
+        );
+
+        setTraitModifiers(filtered);
       } catch (err) {
         console.error("💥 Error fetching trait modifiers:", err);
       } finally {

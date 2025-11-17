@@ -20,7 +20,7 @@ export default function ModifierPage() {
   const fetchModifiers = async () => {
     try {
       const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${BASE_URL}/admin/trait-modifier`, {
+      const res = await fetch(`${BASE_URL}/admin/modifiers`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
         },
@@ -35,13 +35,14 @@ export default function ModifierPage() {
 
   useEffect(() => {
     fetchModifiers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 🧩 Delete modifier
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${BASE_URL}/admin/trait-modifier/${id}`, {
+      const res = await fetch(`${BASE_URL}/admin/modifiers/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: token ? `Bearer ${token}` : "",
@@ -66,7 +67,7 @@ export default function ModifierPage() {
     try {
       const token = localStorage.getItem("admin_token");
       const res = await fetch(
-        `${BASE_URL}/admin/trait-modifier/${modifier.id}/subtype/${subtype.slug}`,
+        `${BASE_URL}/admin/modifiers/${modifier.id}/subtype/${subtype.slug}`,
         {
           method: "DELETE",
           headers: {
@@ -99,7 +100,7 @@ export default function ModifierPage() {
     <div className="p-6 text-gray-200">
       {/* HEADER */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Trait Modifiers</h2>
+        <h2 className="text-xl font-semibold">Modifiers</h2>
         <button
           onClick={() => {
             setSelected(null);

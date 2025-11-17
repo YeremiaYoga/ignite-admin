@@ -1,26 +1,32 @@
 "use client";
 import { useState, useEffect } from "react";
+import { Edit3, Trash2 } from "lucide-react";
 import InputField from "@/components/InputField";
 
 export default function SubtypeModal({ modifier, editData, onClose, onSaved }) {
   const [name, setName] = useState(editData?.name || "");
   const [loading, setLoading] = useState(false);
+  const [list, setList] = useState([]); // ← semua subtype
   const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+  // Prefill
   useEffect(() => {
+    setList(modifier.subtypes || []);
     if (editData) setName(editData.name);
-  }, [editData]);
+  }, [modifier, editData]);
 
+  // 🔥 Save new or updated subtype
   const handleSave = async () => {
-    if (!name) return alert("Please enter subtype name");
+    if (!name.trim()) return alert("Please enter subtype name");
+
     try {
       setLoading(true);
       const token = localStorage.getItem("admin_token");
 
       const method = editData ? "PUT" : "POST";
       const url = editData
-        ? `${BASE_URL}/admin/trait-modifier/${modifier.id}/subtype/${editData.slug}`
-        : `${BASE_URL}/admin/trait-modifier/${modifier.id}/subtype`;
+        ? `${BASE_URL}/admin/modifiers/${modifier.id}/subtype/${editData.slug}`
+        : `${BASE_URL}/admin/modifiers/${modifier.id}/subtype`;
 
       const res = await fetch(url, {
         method,
@@ -40,6 +46,37 @@ export default function SubtypeModal({ modifier, editData, onClose, onSaved }) {
       onSaved?.();
       onClose?.();
     } catch (err) {
+      console.error("❌ Save subtype error:", err);
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ❌ Delete subtype
+  const handleDelete = async (sub) => {
+    if (!confirm(`Delete subtype "${sub.name}"?`)) return;
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("admin_token");
+
+      const res = await fetch(
+        `${BASE_URL}/admin/modifiers/${modifier.id}/subtype/${sub.slug}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to delete subtype");
+
+      onSaved?.();
+      onClose?.();
+    } catch (err) {
+      console.error("❌ Delete subtype error:", err);
       alert(err.message);
     } finally {
       setLoading(false);
@@ -70,6 +107,43 @@ export default function SubtypeModal({ modifier, editData, onClose, onSaved }) {
           onChange={setName}
           placeholder="e.g. Werebears"
         />
+
+        {/* LIST OF SUBTYPES */}
+        <div className="mt-4 border-t border-gray-700 pt-4">
+          <h3 className="text-sm text-gray-300 mb-2">All Subtypes</h3>
+
+          {list.length === 0 ? (
+            <p className="text-xs text-gray-500">No subtypes yet.</p>
+          ) : (
+            <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+              {list.map((s) => (
+                <div
+                  key={s.slug}
+                  className="flex items-center justify-between bg-gray-800/60 border border-gray-700 rounded px-3 py-2"
+                >
+                  <span className="text-gray-100 text-sm">{s.name}</span>
+
+                  <div className="flex gap-2">
+                    <button
+                      className="text-yellow-400 hover:text-yellow-300"
+                      onClick={() => {
+                        setName(s.name);
+                      }}
+                    >
+                      <Edit3 size={16} />
+                    </button>
+                    <button
+                      className="text-red-400 hover:text-red-300"
+                      onClick={() => handleDelete(s)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* FOOTER */}
         <div className="flex justify-end gap-2 pt-4 border-t border-gray-700">

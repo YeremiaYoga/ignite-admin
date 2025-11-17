@@ -12,14 +12,20 @@ export default function TraitModifiersSection({ form, handleChange, updateModifi
       try {
         const token = localStorage.getItem("admin_token");
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/admin/trait-modifier`,
+          `${process.env.NEXT_PUBLIC_API_URL}/admin/modifiers`,
           {
             headers: { Authorization: token ? `Bearer ${token}` : "" },
           }
         );
         if (!res.ok) throw new Error("Failed to fetch modifiers");
         const data = await res.json();
-        setTraitModifiers(data || []);
+
+        // 🔥 FILTER hanya yang target_for mengandung "species"
+        const filtered = (data || []).filter(
+          (m) => Array.isArray(m.target_for) && m.target_for.includes("species")
+        );
+
+        setTraitModifiers(filtered);
       } catch (err) {
         console.error("💥 Error fetching trait modifiers:", err);
       } finally {
@@ -106,7 +112,9 @@ export default function TraitModifiersSection({ form, handleChange, updateModifi
                 </button>
               </div>
 
+              {/* FORM */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* TYPE */}
                 <InputField
                   type="select"
                   label="Modifier Type"
@@ -124,6 +132,7 @@ export default function TraitModifiersSection({ form, handleChange, updateModifi
                   }
                 />
 
+                {/* SUBTYPE */}
                 <InputField
                   type="select"
                   label="Modifier Subtype"
@@ -142,6 +151,7 @@ export default function TraitModifiersSection({ form, handleChange, updateModifi
                   }
                 />
 
+                {/* Ability Score */}
                 <InputField
                   type="select"
                   label="Ability Score"
@@ -158,6 +168,7 @@ export default function TraitModifiersSection({ form, handleChange, updateModifi
                   ]}
                 />
 
+                {/* VALUE FIELDS */}
                 <InputField
                   type="number"
                   label="Fixed Value"
