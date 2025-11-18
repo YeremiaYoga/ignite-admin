@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Info, Eye, EyeOff } from "lucide-react";
+import { Info, Eye, EyeOff, X } from "lucide-react";
 
 export default function InputField({
   label,
@@ -14,12 +14,14 @@ export default function InputField({
   toggleLabel,
   iconSize = 16,
 }) {
-  const [query, setQuery] = useState(value || "");
+  const [query, setQuery] = useState(
+    typeof value === "string" ? value : ""
+  );
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef();
 
   const filteredOptions =
-    type === "selectSearch"
+    (type === "selectSearch" || type === "multiSelectSearch") && options?.length
       ? options.filter((opt) =>
           (opt.label ?? opt)
             .toString()
@@ -44,6 +46,42 @@ export default function InputField({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // For multi select
+  const selectedValues =
+    type === "multiSelectSearch"
+      ? Array.isArray(value)
+        ? value
+        : []
+      : [];
+
+  const toggleMultiSelect = (opt) => {
+    if (disabled) return;
+
+    const val = opt.value ?? opt;
+    let next;
+
+    if (selectedValues.includes(val)) {
+      next = selectedValues.filter((v) => v !== val);
+    } else {
+      next = [...selectedValues, val];
+    }
+
+    onChange(next);
+  };
+
+  const removeMultiValue = (val) => {
+    if (disabled) return;
+    const next = selectedValues.filter((v) => v !== val);
+    onChange(next);
+  };
+
+  const selectedOptionObjects =
+    type === "multiSelectSearch"
+      ? options.filter((opt) =>
+          selectedValues.includes(opt.value ?? opt)
+        )
+      : [];
+
   return (
     <div ref={ref} className="relative">
       {label && (
@@ -60,6 +98,7 @@ export default function InputField({
         </label>
       )}
 
+      {/* 🔎 Single select with search */}
       {type === "selectSearch" ? (
         <>
           <input
@@ -103,6 +142,88 @@ export default function InputField({
                       </span>
                     </li>
                   ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </>
+      ) : type === "multiSelectSearch" ? (
+        <>
+          {/* Selected chips */}
+          {selectedOptionObjects.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-1">
+              {selectedOptionObjects.map((opt) => {
+                const val = opt.value ?? opt;
+                return (
+                  <span
+                    key={val}
+                    className="inline-flex items-center gap-1 rounded-full bg-blue-600/20 text-blue-100 border border-blue-500 px-2 py-0.5 text-xs"
+                  >
+                    {opt.label ?? val}
+                    {!disabled && (
+                      <button
+                        type="button"
+                        onClick={() => removeMultiValue(val)}
+                        className="hover:text-red-400"
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setIsOpen(true);
+            }}
+            onClick={() => setIsOpen(true)}
+            placeholder={placeholder || "Search & select..."}
+            disabled={disabled}
+            className={`w-full px-3 py-2 rounded-md bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              disabled ? "opacity-60 cursor-not-allowed" : ""
+            }`}
+          />
+          {isOpen && (
+            <div className="absolute z-10 w-full mt-1 bg-gray-800 rounded-md shadow-lg border border-gray-700 max-h-60 overflow-y-auto">
+              {filteredOptions.length === 0 ? (
+                <div className="px-3 py-2 text-gray-400">No results found.</div>
+              ) : (
+                <ul>
+                  {filteredOptions.map((opt) => {
+                    const val = opt.value ?? opt;
+                    const isActive = selectedValues.includes(val);
+                    return (
+                      <li
+                        key={val}
+                        className={`flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-700 capitalize ${
+                          isActive ? "bg-gray-700/70" : ""
+                        }`}
+                        onClick={() => toggleMultiSelect(opt)}
+                      >
+                        {opt.image && (
+                          <img
+                            src={opt.image}
+                            alt={opt.label ?? opt}
+                            className="w-5 h-5 rounded object-cover"
+                          />
+                        )}
+                        <span className="flex-1">
+                          {opt.label
+                            ? opt.label.replace(/_/g, " ")
+                            : val.toString().replace(/_/g, " ")}
+                        </span>
+                        {isActive && (
+                          <span className="text-xs text-blue-400">Selected</span>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
@@ -170,7 +291,7 @@ export default function InputField({
         <div className="relative w-full min-w-[120px]">
           <div
             className="border rounded-md p-2 bg-gray-800 text-white cursor-pointer flex items-center gap-2 w-full"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => !disabled && setIsOpen(!isOpen)}
           >
             {value ? (
               <div className="flex items-center gap-2">

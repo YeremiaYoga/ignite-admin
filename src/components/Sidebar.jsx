@@ -41,6 +41,15 @@ export default function Sidebar() {
     { label: "Home", icon: Home, href: "/dashboard" },
     { label: "Announcement", icon: Home, href: "/dashboard/announcement" },
     {
+      label: "World Management",
+      icon: Users,
+      children: [
+        { label: "World", href: "/dashboard/world-management/world" },
+        { label: "Campaign", href: "/dashboard/world-management/campaign" },
+        { label: "Age", href: "/dashboard/world-management/age" },
+      ],
+    },
+    {
       label: "User Management",
       icon: Users,
       href: "/dashboard/user-management",
