@@ -1,4 +1,12 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import InputField from "@/components/InputField";
+
+const BASE_URL =
+  (typeof process !== "undefined" &&
+    (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "")) ||
+  "";
 
 export default function WorldFormModal({
   open,
@@ -10,18 +18,87 @@ export default function WorldFormModal({
   onTogglePrivate,
   onClose,
   onSubmit,
-  platformOptions = [],
-  gameSystemOptions = [],
-  languageOptions = [],
-  onChangePlatforms,
-  onChangeGameSystems,
-  onChangeLanguages,
 }) {
+  const [platformOptions, setPlatformOptions] = useState([]);
+  const [gameSystemOptions, setGameSystemOptions] = useState([]);
+  const [languageOptions, setLanguageOptions] = useState([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
+
+  // 🔄 Load options from API when modal dibuka
+  useEffect(() => {
+    if (!open) return;
+
+    let cancelled = false;
+
+    async function loadOptions() {
+      try {
+        setLoadingOptions(true);
+
+        const [platRes, gameRes, langRes] = await Promise.all([
+          fetch(`${BASE_URL}/platforms`),
+          fetch(`${BASE_URL}/game-systems`),
+          fetch(`${BASE_URL}/real-languages`),
+        ]);
+
+        if (!platRes.ok) throw new Error("platforms fetch failed");
+        if (!gameRes.ok) throw new Error("game systems fetch failed");
+        if (!langRes.ok) throw new Error("languages fetch failed");
+
+        const [platData, gameData, langData] = await Promise.all([
+          platRes.json(),
+          gameRes.json(),
+          langRes.json(),
+        ]);
+
+        if (cancelled) return;
+
+        // 🎮 Platforms → { value: id, label: name }
+        setPlatformOptions(
+          (platData || []).map((p) => ({
+            value: p.id,
+            label: p.name,
+            raw: p,
+          }))
+        );
+
+        // 📚 Game systems → { value: id, label: name }
+        setGameSystemOptions(
+          (gameData || []).map((g) => ({
+            value: g.id,
+            label: g.name,
+            raw: g,
+          }))
+        );
+
+        // 🗣 Real languages → { value: id, label: "English (en)" }
+        setLanguageOptions(
+          (langData || []).map((l) => ({
+            value: l.id,
+            label: l.code
+              ? `${l.name_en || l.name_native || l.code} (${l.code})`
+              : l.name_en || l.name_native || "Unknown",
+            raw: l,
+          }))
+        );
+      } catch (err) {
+        console.error("❌ Failed to load world form options:", err);
+      } finally {
+        if (!cancelled) setLoadingOptions(false);
+      }
+    }
+
+    loadOptions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-xl rounded-lg bg-slate-900 border border-slate-700 shadow-lg">
+      <div className="w-full max-w-6xl rounded-lg bg-slate-900 border border-slate-700 shadow-lg">
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
           <h2 className="text-sm font-semibold text-gray-100">
             {isEdit ? "Edit World" : "Add World"}
@@ -136,53 +213,71 @@ export default function WorldFormModal({
 
           {/* Platforms */}
           <InputField
-            label="Platforms"
+            label={
+              <span className="flex items-center gap-1 text-xs text-gray-300">
+                Platforms
+                {loadingOptions && (
+                  <span className="text-[10px] text-gray-400">
+                    (loading...)
+                  </span>
+                )}
+              </span>
+            }
             type="multiSelectSearch"
-            value={form.platforms}
+            value={form.platforms || []} // array of ids
             onChange={(vals) =>
-              onChangePlatforms
-                ? onChangePlatforms(vals)
-                : onChange({
-                    target: { name: "platforms", value: vals },
-                  })
+              onChange({
+                target: { name: "platforms", value: vals },
+              })
             }
             options={platformOptions}
             placeholder="Search & select platforms..."
-            
           />
 
           {/* Game Systems */}
           <InputField
-            label="Game Systems"
+            label={
+              <span className="flex items-center gap-1 text-xs text-gray-300">
+                Game Systems
+                {loadingOptions && (
+                  <span className="text-[10px] text-gray-400">
+                    (loading...)
+                  </span>
+                )}
+              </span>
+            }
             type="multiSelectSearch"
-            value={form.game_systems}
+            value={form.game_systems || []}
             onChange={(vals) =>
-              onChangeGameSystems
-                ? onChangeGameSystems(vals)
-                : onChange({
-                    target: { name: "game_systems", value: vals },
-                  })
+              onChange({
+                target: { name: "game_systems", value: vals },
+              })
             }
             options={gameSystemOptions}
             placeholder="Search & select game systems..."
-           
           />
 
           {/* Languages */}
           <InputField
-            label="Languages"
+            label={
+              <span className="flex items-center gap-1 text-xs text-gray-300">
+                Languages
+                {loadingOptions && (
+                  <span className="text-[10px] text-gray-400">
+                    (loading...)
+                  </span>
+                )}
+              </span>
+            }
             type="multiSelectSearch"
-            value={form.languages}
+            value={form.languages || []}
             onChange={(vals) =>
-              onChangeLanguages
-                ? onChangeLanguages(vals)
-                : onChange({
-                    target: { name: "languages", value: vals },
-                  })
+              onChange({
+                target: { name: "languages", value: vals },
+              })
             }
             options={languageOptions}
             placeholder="Search & select languages..."
-            
           />
 
           <div className="flex justify-end gap-2 pt-2">
