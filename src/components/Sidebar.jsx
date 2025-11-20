@@ -50,6 +50,14 @@ export default function Sidebar() {
       ],
     },
     {
+      label: "Item Management",
+      icon: Users,
+      children: [
+        { label: "weapon", href: "/dashboard/item-management/weapon" },
+        { label: "tool", href: "/dashboard/item-management/tool" },
+      ],
+    },
+    {
       label: "User Management",
       icon: Users,
       href: "/dashboard/user-management",
