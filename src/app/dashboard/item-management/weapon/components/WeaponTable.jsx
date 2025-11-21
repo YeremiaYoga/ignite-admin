@@ -125,9 +125,9 @@ export default function WeaponTable() {
                   
                   {/* IMG */}
                   <td className="py-2 px-2">
-                    {w.format_data?.img ? (
+                    {w.image ? (
                       <img
-                        src={w.format_data.img}
+                        src={w.image}
                         alt={w.name}
                         className="w-12 h-12 object-contain rounded-md border border-slate-700"
                       />
