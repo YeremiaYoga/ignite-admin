@@ -5,40 +5,43 @@ import { X, UploadCloud, FileJson2 } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-export default function WeaponImportModal({ onClose }) {
+export default function ToolImportModal({ onClose }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  const getAuthHeader = () => {
+    if (typeof window === "undefined") return {};
+    const token = localStorage.getItem("admin_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
 
   const handleImport = async () => {
     if (!file) return;
 
     try {
       setLoading(true);
+      setResult(null);
 
-      // 🔥 Baca file JSON → parse
       const text = await file.text();
       const json = JSON.parse(text);
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("admin_token")
-          : null;
 
-      const res = await fetch(`${API}/foundry/weapons/import`, {
+      const res = await fetch(`${API}/foundry/tools/import`, {
         method: "POST",
         body: JSON.stringify(json),
         headers: {
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...getAuthHeader(),
         },
+        credentials: "include", // kirim cookie ignite_access_token
       });
 
       const resultJSON = await res.json();
       setResult(resultJSON);
     } catch (err) {
       console.error("❌ Import failed:", err);
-      setResult({ error: "Import failed" });
+      setResult({ error: "Import failed. Please check your JSON file." });
     } finally {
       setLoading(false);
     }
@@ -79,6 +82,7 @@ export default function WeaponImportModal({ onClose }) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-lg relative shadow-2xl">
+
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -89,8 +93,11 @@ export default function WeaponImportModal({ onClose }) {
 
         {/* Header */}
         <h2 className="text-lg font-semibold mb-2 text-white">
-          Import Foundry Weapon JSON
+          Import Foundry Tool JSON
         </h2>
+        <p className="text-xs text-slate-300 mb-4">
+          Upload a <span className="font-mono">.json</span> file exported from Foundry VTT.
+        </p>
 
         {/* Upload Box */}
         <div
@@ -102,7 +109,7 @@ export default function WeaponImportModal({ onClose }) {
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          onClick={() => document.getElementById("weapon-json-input")?.click()}
+          onClick={() => document.getElementById("tool-json-input")?.click()}
         >
           <UploadCloud className="w-8 h-8 text-slate-200 mb-1" />
           <p className="text-sm text-slate-100 font-medium">
@@ -111,7 +118,7 @@ export default function WeaponImportModal({ onClose }) {
           <p className="text-xs text-slate-400">or drag & drop here</p>
 
           <input
-            id="weapon-json-input"
+            id="tool-json-input"
             type="file"
             accept=".json"
             className="hidden"
@@ -147,8 +154,7 @@ export default function WeaponImportModal({ onClose }) {
               <p className="text-red-300">❌ {result.error}</p>
             ) : (
               <p className="text-emerald-300">
-                ✅ Imported {result.imported ?? result.items?.length ?? 0}{" "}
-                items.
+                ✅ Imported {result.imported ?? result.items?.length ?? 0} items.
               </p>
             )}
           </div>
