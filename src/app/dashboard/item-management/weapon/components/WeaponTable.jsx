@@ -12,16 +12,26 @@ export default function WeaponTable() {
     fetchData();
   }, []);
 
+  const getAuthHeader = () => {
+    const token = localStorage.getItem("admin_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   const fetchData = async () => {
     try {
       setLoading(true);
+
       const res = await fetch(`${API}/foundry/weapons`, {
-        credentials: "include",
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeader(),
+        },
       });
 
       const json = await res.json();
-      // backend: { success: true, items: [...] }
-    //   setData(json.items || json.weapons || []);
+      setData(json.items || []);
+      console.log(json);
     } catch (err) {
       console.error("❌ Failed to load weapons:", err);
     } finally {
@@ -36,9 +46,13 @@ export default function WeaponTable() {
     try {
       const res = await fetch(`${API}/foundry/weapons/${id}`, {
         method: "DELETE",
-        credentials: "include",
+        headers: {
+          ...getAuthHeader(),
+        },
       });
+
       if (!res.ok) throw new Error("Failed to delete");
+
       setData((prev) => prev.filter((w) => w.id !== id));
     } catch (err) {
       console.error("❌ Delete failed:", err);
@@ -47,8 +61,15 @@ export default function WeaponTable() {
   };
 
   const handleExport = (id, mode) => {
-    const m = mode === "raw" ? "raw" : "formatted";
-    window.location.href = `${API}/foundry/weapons/${id}/export?mode=${m}`;
+    const m = mode === "raw" ? "raw" : "format";
+
+    const token = localStorage.getItem("admin_token");
+    if (!token) return alert("Missing admin token");
+
+    window.open(
+      `${API}/foundry/weapons/${id}/export?mode=${m}&token=${token}`,
+      "_blank"
+    );
   };
 
   return (
@@ -57,6 +78,7 @@ export default function WeaponTable() {
         <table className="min-w-full text-sm">
           <thead>
             <tr className="text-left border-b border-slate-700">
+              <th className="py-2 px-2">Image</th>
               <th className="py-2 px-2">Name</th>
               <th className="py-2 px-2">Type</th>
               <th className="py-2 px-2">Actions</th>
@@ -65,21 +87,41 @@ export default function WeaponTable() {
           <tbody>
             {loading ? (
               <tr>
-                <td className="py-3 px-2 text-center text-gray-500" colSpan={3}>
+                <td className="py-3 px-2 text-center text-gray-500" colSpan={4}>
                   Loading...
                 </td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={3} className="py-3 text-center text-gray-400">
+                <td colSpan={4} className="py-3 text-center text-gray-400">
                   No weapon data yet.
                 </td>
               </tr>
             ) : (
               data.map((w) => (
                 <tr key={w.id} className="border-b border-slate-800">
+                  {/* IMAGE */}
+                  <td className="py-2 px-2">
+                    {w.format_data.img ? (
+                      <img
+                        src={w.format_data.img}
+                        alt={w.name}
+                        className="w-12 h-12 object-contain rounded-md border border-slate-700"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-md bg-slate-700/40 flex items-center justify-center text-[10px] text-gray-400">
+                        No Img
+                      </div>
+                    )}
+                  </td>
+
+                  {/* NAME */}
                   <td className="py-2 px-2">{w.name}</td>
+
+                  {/* TYPE */}
                   <td className="py-2 px-2">{w.type}</td>
+
+                  {/* ACTIONS */}
                   <td className="py-2 px-2">
                     <div className="flex items-center gap-2">
                       <button
@@ -88,12 +130,14 @@ export default function WeaponTable() {
                       >
                         Export Raw
                       </button>
+
                       <button
-                        onClick={() => handleExport(w.id, "formatted")}
+                        onClick={() => handleExport(w.id, "format")}
                         className="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs"
                       >
                         Export Format
                       </button>
+
                       <button
                         onClick={() => handleDelete(w.id)}
                         className="px-2 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs"

@@ -19,14 +19,18 @@ export default function WeaponImportModal({ onClose }) {
       // 🔥 Baca file JSON → parse
       const text = await file.text();
       const json = JSON.parse(text);
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("admin_token")
+          : null;
 
       const res = await fetch(`${API}/foundry/weapons/import`, {
         method: "POST",
         body: JSON.stringify(json),
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        credentials: "include",
       });
 
       const resultJSON = await res.json();
@@ -42,7 +46,6 @@ export default function WeaponImportModal({ onClose }) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-slate-900 border border-slate-700 p-6 rounded-xl w-full max-w-lg relative">
-
         <button
           onClick={onClose}
           className="absolute top-3 right-3 p-1 rounded hover:bg-slate-700"
@@ -82,7 +85,6 @@ export default function WeaponImportModal({ onClose }) {
     </div>
   );
 }
-
 
 // "use client";
 
