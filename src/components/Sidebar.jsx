@@ -53,8 +53,11 @@ export default function Sidebar() {
       label: "Item Management",
       icon: Users,
       children: [
-        { label: "weapon", href: "/dashboard/item-management/weapon" },
-        { label: "tool", href: "/dashboard/item-management/tool" },
+        { label: "Weapon", href: "/dashboard/item-management/weapon" },
+        { label: "Tool", href: "/dashboard/item-management/tool" },
+        { label: "Consumable", href: "/dashboard/item-management/consumable" },
+        { label: "Equipment", href: "/dashboard/item-management/equipment" },
+        { label: "Container", href: "/dashboard/item-management/container" },
       ],
     },
     {

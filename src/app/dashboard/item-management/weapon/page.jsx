@@ -1,9 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import WeaponTable from "./components/WeaponTable";
 import WeaponImportModal from "./components/WeaponImportModal";
-
-import { useState } from "react";
 
 export default function WeaponManagementPage() {
   const [showImport, setShowImport] = useState(false);
@@ -27,7 +26,9 @@ export default function WeaponManagementPage() {
 
       <WeaponTable />
 
-      {showImport && <WeaponImportModal onClose={() => setShowImport(false)} />}
+      {showImport && (
+        <WeaponImportModal onClose={() => setShowImport(false)} />
+      )}
     </div>
   );
 }

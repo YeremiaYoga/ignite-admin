@@ -5,7 +5,7 @@ import { X, UploadCloud, FileJson2 } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-export default function WeaponImportModal({ onClose }) {
+export default function EquipmentImportModal({ onClose }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -24,7 +24,7 @@ export default function WeaponImportModal({ onClose }) {
           ? localStorage.getItem("admin_token")
           : null;
 
-      const res = await fetch(`${API}/foundry/weapons/import`, {
+      const res = await fetch(`${API}/foundry/equipments/import`, {
         method: "POST",
         body: JSON.stringify(json),
         headers: {
@@ -86,7 +86,7 @@ export default function WeaponImportModal({ onClose }) {
         </button>
 
         <h2 className="text-lg font-semibold mb-2 text-white">
-          Import Foundry Weapon JSON
+          Import Foundry Equipment JSON
         </h2>
 
         <div
@@ -98,7 +98,9 @@ export default function WeaponImportModal({ onClose }) {
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          onClick={() => document.getElementById("weapon-json-input")?.click()}
+          onClick={() =>
+            document.getElementById("equipment-json-input")?.click()
+          }
         >
           <UploadCloud className="w-8 h-8 text-slate-200 mb-1" />
           <p className="text-sm text-slate-100 font-medium">
@@ -107,7 +109,7 @@ export default function WeaponImportModal({ onClose }) {
           <p className="text-xs text-slate-400">or drag & drop here</p>
 
           <input
-            id="weapon-json-input"
+            id="equipment-json-input"
             type="file"
             accept=".json"
             className="hidden"
@@ -147,8 +149,7 @@ export default function WeaponImportModal({ onClose }) {
                 </p>
                 {Array.isArray(result.errors) && result.errors.length > 0 && (
                   <p className="text-amber-300 mt-1">
-                    ⚠ {result.errors.length} item gagal diimport (cek console /
-                    response detail).
+                    ⚠ {result.errors.length} item failed diimport.
                   </p>
                 )}
               </>

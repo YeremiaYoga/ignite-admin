@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-export default function WeaponTable() {
+export default function ConsumableTable() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +24,7 @@ export default function WeaponTable() {
     try {
       setLoading(true);
 
-      const res = await fetch(`${API}/foundry/weapons`, {
+      const res = await fetch(`${API}/foundry/consumables`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -35,18 +35,18 @@ export default function WeaponTable() {
       const json = await res.json();
       setData(json.items || []);
     } catch (err) {
-      console.error("❌ Failed to load weapons:", err);
+      console.error("❌ Failed to load consumables:", err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    const ok = confirm("Delete this weapon?");
+    const ok = confirm("Delete this consumable?");
     if (!ok) return;
 
     try {
-      const res = await fetch(`${API}/foundry/weapons/${id}`, {
+      const res = await fetch(`${API}/foundry/consumables/${id}`, {
         method: "DELETE",
         headers: {
           ...getAuthHeader(),
@@ -66,11 +66,14 @@ export default function WeaponTable() {
     const m = mode === "raw" ? "raw" : "format";
 
     try {
-      const res = await fetch(`${API}/foundry/weapons/${id}/export?mode=${m}`, {
-        headers: {
-          ...getAuthHeader(),
-        },
-      });
+      const res = await fetch(
+        `${API}/foundry/consumables/${id}/export?mode=${m}`,
+        {
+          headers: {
+            ...getAuthHeader(),
+          },
+        }
+      );
 
       if (!res.ok) {
         alert("Failed to export");
@@ -82,7 +85,7 @@ export default function WeaponTable() {
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = `weapon_${id}_${m}.json`;
+      a.download = `consumable_${id}_${m}.json`;
       a.click();
 
       URL.revokeObjectURL(url);
@@ -106,10 +109,11 @@ export default function WeaponTable() {
               <th className="py-2 px-2">Image</th>
               <th className="py-2 px-2">Name</th>
               <th className="py-2 px-2">Type</th>
-              <th className="py-2 px-2">Base Item</th>
-              <th className="py-2 px-2">Weapon Type</th>
+              <th className="py-2 px-2">Type Value</th>
+              <th className="py-2 px-2">Subtype</th>
               <th className="py-2 px-2">Rarity</th>
               <th className="py-2 px-2">Attunement</th>
+              <th className="py-2 px-2">Weight</th>
               <th className="py-2 px-2">Price (cp)</th>
               <th className="py-2 px-2">Compendium</th>
               <th className="py-2 px-2">Source</th>
@@ -120,80 +124,65 @@ export default function WeaponTable() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={11} className="py-3 text-center text-gray-500">
+                <td colSpan={12} className="py-3 text-center text-gray-500">
                   Loading...
                 </td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={11} className="py-3 text-center text-gray-400">
-                  No weapon data yet.
+                <td colSpan={12} className="py-3 text-center text-gray-400">
+                  No consumable data yet.
                 </td>
               </tr>
             ) : (
-              data.map((w) => (
-                <tr key={w.id} className="border-b border-slate-800">
+              data.map((c) => (
+                <tr key={c.id} className="border-b border-slate-800">
                   {/* IMG */}
                   <td className="py-2 px-2">
-                    {w.image ? (
+                    {c.image ? (
                       <img
-                        src={w.image}
-                        alt={w.name}
-                        className="w-12 h-12 object-contain rounded-md border border-slate-700"
+                        src={c.image}
+                        alt={c.name}
+                        className="w-10 h-10 object-contain rounded-md border border-slate-700"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-md bg-slate-700/40 flex items-center justify-center text-[10px] text-gray-400">
+                      <div className="w-10 h-10 rounded-md bg-slate-700/40 flex items-center justify-center text-[10px] text-gray-400">
                         No Img
                       </div>
                     )}
                   </td>
 
-                  {/* NAME */}
-                  <td className="py-2 px-2">{w.name}</td>
-
-                  {/* TYPE */}
-                  <td className="py-2 px-2">{w.type}</td>
-
-                  {/* BASE ITEM */}
-                  <td className="py-2 px-2">{w.base_item || "-"}</td>
-
-                  {/* WEAPON TYPE */}
-                  <td className="py-2 px-2">{w.weapon_type || "-"}</td>
-
-                  {/* RARITY */}
-                  <td className="py-2 px-2">{w.rarity || "-"}</td>
-
-                  {/* ATTUNEMENT */}
-                  <td className="py-2 px-2">{w.attunement || "-"}</td>
-
-                  {/* PRICE (CP) */}
-                  <td className="py-2 px-2">{formatPrice(w.price)}</td>
-
-                  {/* COMPENDIUM */}
-                  <td className="py-2 px-2 max-w-xs truncate">
-                    {w.compendium_source || "-"}
+                  <td className="py-2 px-2">{c.name}</td>
+                  <td className="py-2 px-2">{c.type}</td>
+                  <td className="py-2 px-2">{c.type_value || "-"}</td>
+                  <td className="py-2 px-2">{c.subtype || "-"}</td>
+                  <td className="py-2 px-2">{c.rarity || "-"}</td>
+                  <td className="py-2 px-2">{c.attunement || "-"}</td>
+                  <td className="py-2 px-2">
+                    {c.weight != null ? `${c.weight}` : "-"}
                   </td>
+                  <td className="py-2 px-2">{formatPrice(c.price)}</td>
+                  <td className="py-2 px-2 max-w-xs truncate">
+                    {c.compendium_source || "-"}
+                  </td>
+                  <td className="py-2 px-2">{c.source_book || "-"}</td>
 
-                  {/* SOURCE BOOK */}
-                  <td className="py-2 px-2">{w.source_book || "-"}</td>
-
-                  {/* ACTIONS */}
                   <td className="py-2 px-2">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleExport(w.id, "raw")}
+                        onClick={() => handleExport(c.id, "raw")}
                         className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
                       >
                         Export Raw
                       </button>
                       <button
-                        onClick={() => handleExport(w.id, "format")}
+                        onClick={() => handleExport(c.id, "format")}
                         className="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs"
                       >
                         Export Format
                       </button>
                       <button
-                        onClick={() => handleDelete(w.id)}
+                        onClick={() => handleDelete(c.id)}
                         className="px-2 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs"
                       >
                         Delete
