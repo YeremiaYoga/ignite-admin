@@ -58,6 +58,15 @@ export default function Sidebar() {
         { label: "Consumable", href: "/dashboard/item-management/consumable" },
         { label: "Equipment", href: "/dashboard/item-management/equipment" },
         { label: "Container", href: "/dashboard/item-management/container" },
+        { label: "Loot", href: "/dashboard/item-management/loot" },
+      ],
+    },
+    {
+      label: "Abilities Management",
+      icon: Users,
+      children: [
+        { label: "Spells", href: "/dashboard/abilities-management/spells" },
+        { label: "Feature", href: "/dashboard/abilities-management/feature" },
       ],
     },
     {

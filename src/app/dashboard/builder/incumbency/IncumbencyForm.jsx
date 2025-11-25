@@ -7,7 +7,10 @@ import AbilityEditor from "./AbilityEditor";
 import AssetSelectField from "@/components/AssetSelectField";
 import RichTextEditor from "@/components/RichTextEditor";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+const API_BASE =
+  (typeof process !== "undefined" &&
+    (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "")) ||
+  "";
 
 const ALLOWED_TYPES = [
   "Basic",
@@ -32,21 +35,23 @@ const ROLE_OPTIONS = [
   "bruiser",
 ];
 
+// ✅ Pakai alignment_* sebagai sumber utama
 const DEFAULT_FORM = {
   name: "",
   version: 1,
   image: "",
-  good: false,
-  neutral: false,
-  evil: false,
-  unknown: false,
+  alignment_good: false,
+  alignment_neutral: false,
+  alignment_evil: false,
+  alignment_unknown: false,
+
   role: "",
   hp_scale: 0,
   cv_minimum: 0,
   cv_flat_cost: 0,
   cv_percent_cost: 0,
   ac_calc: "",
-  intivative_bonus: 0,
+  initiative_bonus: 0,
   description: "",
   abilities: [],
 };
@@ -67,25 +72,51 @@ export default function IncumbencyForm({
   mode = "create",
   onSaved,
 }) {
-  const [form, setForm] = useState(initialData || DEFAULT_FORM);
+  const [form, setForm] = useState(DEFAULT_FORM);
   const [open, setOpen] = useState({});
   const [saving, setSaving] = useState(false);
   const [baseVersion, setBaseVersion] = useState(null);
 
+  // 🔁 Normalisasi initialData → form
   useEffect(() => {
-    if (mode === "duplicate" && initialData) {
-      const nextVersion = Number(initialData.version || 1) + 1;
-      setForm({
-        ...initialData,
-        version: nextVersion,
-      });
-      setBaseVersion(Number(initialData.version));
-    } else if (initialData) {
-      setForm(initialData);
-      setBaseVersion(Number(initialData.version));
-    } else {
+    if (!initialData) {
       setForm(DEFAULT_FORM);
       setBaseVersion(null);
+      return;
+    }
+
+    // fallback: kalau data lama masih pakai good/neutral/evil/unknown
+    const normalized = {
+      ...DEFAULT_FORM,
+      ...initialData,
+      alignment_good:
+        initialData.alignment_good ??
+        initialData.good ??
+        DEFAULT_FORM.alignment_good,
+      alignment_neutral:
+        initialData.alignment_neutral ??
+        initialData.neutral ??
+        DEFAULT_FORM.alignment_neutral,
+      alignment_evil:
+        initialData.alignment_evil ??
+        initialData.evil ??
+        DEFAULT_FORM.alignment_evil,
+      alignment_unknown:
+        initialData.alignment_unknown ??
+        initialData.unknown ??
+        DEFAULT_FORM.alignment_unknown,
+    };
+
+    if (mode === "duplicate") {
+      const nextVersion = Number(normalized.version || 1) + 1;
+      setForm({
+        ...normalized,
+        version: nextVersion,
+      });
+      setBaseVersion(Number(normalized.version));
+    } else {
+      setForm(normalized);
+      setBaseVersion(Number(normalized.version));
     }
   }, [initialData, mode]);
 
@@ -103,11 +134,12 @@ export default function IncumbencyForm({
   const usedTypes = useMemo(() => {
     const abilities = form?.abilities || [];
     return new Set(abilities.map((a) => a.type));
-  }, [form]);
+  }, [form.abilities]);
 
   const addAbility = () => {
     const nextType = ALLOWED_TYPES.find((t) => !usedTypes.has(t));
     if (!nextType) return;
+
     const idx = form.abilities.length;
     setForm((prev) => ({
       ...prev,
@@ -128,7 +160,12 @@ export default function IncumbencyForm({
     });
   };
 
-  const toggleOpen = (idx) => setOpen((p) => ({ ...p, [idx]: !p[idx] }));
+  const toggleOpen = (idx) =>
+    setOpen((p) => ({
+      ...p,
+      [idx]: !p[idx],
+    }));
+
   const allTypesUsed = ALLOWED_TYPES.every((t) => usedTypes.has(t));
 
   const handleSave = async () => {
@@ -137,11 +174,17 @@ export default function IncumbencyForm({
 
       const key = form.key || form.name.toLowerCase().replace(/\s+/g, "_");
 
-      const token = localStorage.getItem("admin_token");
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("admin_token")
+          : null;
+
       if (!token) {
-        alert("⚠️ Token hilang, silakan login ulang.");
+        alert("⚠️ Missing token. Please log in again.");
         return;
       }
+
+      // Cek apakah key+version sudah ada
       const resCheck = await fetch(`${API_BASE}/api/incumbency/key/${key}`, {
         cache: "no-store",
         headers: {
@@ -161,10 +204,20 @@ export default function IncumbencyForm({
       let effectiveMode = mode;
       if (mode === "duplicate" && Number(form.version) === baseVersion) {
         effectiveMode = "edit";
-        console.log("⚙️ Duplicate version sama → switch ke EDIT mode otomatis");
+        console.log("⚙️ Duplicate version equals base → auto switch to EDIT");
       }
 
-      const payload = { ...form, key };
+      // ✅ Mirror alignment_* → good/neutral/evil/unknown juga
+      console.log(form);
+      const payload = {
+        ...form,
+        key,
+        good: form.alignment_good,
+        neutral: form.alignment_neutral,
+        evil: form.alignment_evil,
+        unknown: form.alignment_unknown,
+      };
+
       const method = effectiveMode === "edit" || match ? "PATCH" : "POST";
       const url =
         method === "PATCH" && match
@@ -192,7 +245,7 @@ export default function IncumbencyForm({
       onSaved?.(data);
     } catch (err) {
       console.error("❌ Error saving:", err);
-      alert("❌ Error saving: " + err.message);
+      alert("❌ Error saving: " + (err?.message || "Unknown error"));
     } finally {
       setSaving(false);
     }
@@ -216,6 +269,7 @@ export default function IncumbencyForm({
       </div>
 
       <div className="grid grid-cols-1 gap-6">
+        {/* GENERAL */}
         <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 shadow-lg">
           <h3 className="mb-4 text-lg font-semibold">General</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -226,7 +280,6 @@ export default function IncumbencyForm({
               placeholder="Name"
             />
 
-            {/* Version control logic */}
             <InputField
               label="Version"
               type="number"
@@ -235,9 +288,9 @@ export default function IncumbencyForm({
               onChange={(v) => updateField("version", Number(v))}
               hint={
                 mode === "edit"
-                  ? "Version cannot be changed during edit."
+                  ? "Version cannot be changed while editing."
                   : mode === "duplicate"
-                  ? "If version is same as original, it will update instead of create."
+                  ? "If the version equals the original, it will update instead of creating a new one."
                   : undefined
               }
             />
@@ -251,6 +304,7 @@ export default function IncumbencyForm({
               />
             </div>
 
+            {/* DISPOSITION */}
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm text-slate-300">
                 Disposition
@@ -261,31 +315,30 @@ export default function IncumbencyForm({
                   ["neutral", "Neutral"],
                   ["evil", "Evil"],
                   ["unknown", "Unknown"],
-                ].map(([key, label]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() =>
-                      updateField(`alignment_${key}`, !form[`alignment_${key}`])
-                    }
-                    className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm ${
-                      form[`alignment_${key}`]
-                        ? "border-emerald-700 bg-emerald-600/20 text-emerald-200"
-                        : "border-slate-700 bg-slate-800 text-slate-300"
-                    }`}
-                  >
-                    {form[`alignment_${key}`] ? (
-                      <Eye size={16} />
-                    ) : (
-                      <EyeOff size={16} />
-                    )}{" "}
-                    {label}
-                  </button>
-                ))}
+                ].map(([key, label]) => {
+                  const field = `alignment_${key}`;
+                  const active = !!form[field];
+
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => updateField(field, !active)}
+                      className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm ${
+                        active
+                          ? "border-emerald-700 bg-emerald-600/20 text-emerald-200"
+                          : "border-slate-700 bg-slate-800 text-slate-300"
+                      }`}
+                    >
+                      {active ? <Eye size={16} /> : <EyeOff size={16} />}{" "}
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* === Attributes === */}
+            {/* ATTRIBUTES */}
             <InputField
               label="Role"
               type="select"
@@ -319,7 +372,6 @@ export default function IncumbencyForm({
               onChange={(v) => updateField("cv_percent_cost", Number(v))}
             />
             <InputField
-              className="md:col-span-2"
               label="AC Calc"
               value={form.ac_calc}
               onChange={(v) => updateField("ac_calc", v)}
@@ -329,10 +381,10 @@ export default function IncumbencyForm({
               label="Initiative Bonus"
               type="number"
               value={form.initiative_bonus}
-              onChange={(v) => updateField("intivative_bonus", Number(v))}
+              onChange={(v) => updateField("initiative_bonus", Number(v))}
             />
 
-            {/* === Description === */}
+            {/* DESCRIPTION */}
             <div className="md:col-span-2">
               <RichTextEditor
                 value={form.description}
@@ -344,6 +396,7 @@ export default function IncumbencyForm({
           </div>
         </section>
 
+        {/* ABILITIES */}
         <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 shadow-lg">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold">Abilities</h3>
@@ -362,7 +415,7 @@ export default function IncumbencyForm({
 
           {form.abilities.length === 0 && (
             <p className="text-sm text-slate-400">
-              No abilities yet. Click "Add Ability" to start.
+              No abilities yet. Click &quot;Add Ability&quot; to start.
             </p>
           )}
 
