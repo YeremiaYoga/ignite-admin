@@ -9,8 +9,8 @@ export default function FeatureManagementPage() {
 
   return (
     <div className="p-6">
-      On Progress
-      {/* <div className="flex items-center justify-between mb-6">
+    
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
           Feature Management
         </h1>
@@ -29,7 +29,7 @@ export default function FeatureManagementPage() {
 
       {showImport && (
         <FeatureImportModal onClose={() => setShowImport(false)} />
-      )} */}
+      )}
     </div>
   );
 }
