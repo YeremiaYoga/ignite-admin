@@ -6,7 +6,7 @@ import { X, UploadCloud, FileJson2 } from "lucide-react";
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export default function WeaponImportModal({ onClose }) {
-  const [files, setFiles] = useState([]); // 🔁 sekarang array, bukan single file
+  const [files, setFiles] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -24,14 +24,14 @@ export default function WeaponImportModal({ onClose }) {
           : null;
 
       const formData = new FormData();
-      files.forEach((f) => formData.append("files", f)); // 👈 match multer.array("files")
+      files.forEach((f) => formData.append("files", f));
 
       const res = await fetch(`${API}/foundry/weapons/import-files`, {
         method: "POST",
         body: formData,
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          // ❗ JANGAN set "Content-Type" sendiri, biar browser yang set boundary
+        
         },
       });
 
@@ -54,7 +54,7 @@ export default function WeaponImportModal({ onClose }) {
 
     if (!validFiles.length) return;
 
-    setFiles(validFiles); // kalau mau append bisa pakai [...files, ...validFiles]
+    setFiles(validFiles); 
     setResult(null);
   };
 
@@ -131,7 +131,7 @@ export default function WeaponImportModal({ onClose }) {
             id="weapon-json-input"
             type="file"
             accept=".json"
-            multiple // 👈 penting: bisa pilih banyak file
+            multiple 
             className="hidden"
             onChange={(e) => handleFileSelect(e.target.files)}
           />
