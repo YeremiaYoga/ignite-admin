@@ -113,7 +113,7 @@ export default function ContainerTable() {
               <th className="py-2 px-2">Attunement</th>
               <th className="py-2 px-2">Weight</th>
               <th className="py-2 px-2">Properties</th>
-              <th className="py-2 px-2">Price (cp)</th>
+              <th className="py-2 px-2">Price</th>
               <th className="py-2 px-2">Compendium</th>
               <th className="py-2 px-2">Source</th>
               <th className="py-2 px-2">Actions</th>

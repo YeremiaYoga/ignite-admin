@@ -117,7 +117,7 @@ export default function ToolTable() {
               <th className="py-2 px-2">Tool Type</th>
               <th className="py-2 px-2">Rarity</th>
               <th className="py-2 px-2">Attunement</th>
-              <th className="py-2 px-2">Price (cp)</th>
+              <th className="py-2 px-2">Price</th>
               <th className="py-2 px-2">Compendium</th>
               <th className="py-2 px-2">Source</th>
               <th className="py-2 px-2">Actions</th>
@@ -168,7 +168,7 @@ export default function ToolTable() {
                     <td className="py-2 px-2">{t.base_item || "-"}</td>
 
                     {/* TOOL TYPE */}
-                    <td className="py-2 px-2">{t.tool_type || "-"}</td>
+                    <td className="py-2 px-2">{t.type_value || "-"}</td>
 
                     {/* RARITY */}
                     <td className="py-2 px-2">{t.rarity || "-"}</td>

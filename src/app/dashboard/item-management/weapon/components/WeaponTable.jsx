@@ -110,7 +110,7 @@ export default function WeaponTable() {
               <th className="py-2 px-2">Weapon Type</th>
               <th className="py-2 px-2">Rarity</th>
               <th className="py-2 px-2">Attunement</th>
-              <th className="py-2 px-2">Price (cp)</th>
+              <th className="py-2 px-2">Price</th>
               <th className="py-2 px-2">Compendium</th>
               <th className="py-2 px-2">Source</th>
               <th className="py-2 px-2">Actions</th>
@@ -147,37 +147,17 @@ export default function WeaponTable() {
                       </div>
                     )}
                   </td>
-
-                  {/* NAME */}
                   <td className="py-2 px-2">{w.name}</td>
-
-                  {/* TYPE */}
                   <td className="py-2 px-2">{w.type}</td>
-
-                  {/* BASE ITEM */}
                   <td className="py-2 px-2">{w.base_item || "-"}</td>
-
-                  {/* WEAPON TYPE */}
-                  <td className="py-2 px-2">{w.weapon_type || "-"}</td>
-
-                  {/* RARITY */}
+                  <td className="py-2 px-2">{w.type_value || "-"}</td>
                   <td className="py-2 px-2">{w.rarity || "-"}</td>
-
-                  {/* ATTUNEMENT */}
                   <td className="py-2 px-2">{w.attunement || "-"}</td>
-
-                  {/* PRICE (CP) */}
                   <td className="py-2 px-2">{formatPrice(w.price)}</td>
-
-                  {/* COMPENDIUM */}
                   <td className="py-2 px-2 max-w-xs truncate">
                     {w.compendium_source || "-"}
                   </td>
-
-                  {/* SOURCE BOOK */}
                   <td className="py-2 px-2">{w.source_book || "-"}</td>
-
-                  {/* ACTIONS */}
                   <td className="py-2 px-2">
                     <div className="flex items-center gap-2">
                       <button
