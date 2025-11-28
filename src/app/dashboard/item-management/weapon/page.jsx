@@ -46,7 +46,7 @@ export default function WeaponManagementPage() {
 
       {showImport && (
         <WeaponImportModal
-          mode={importMode} // 👈 "body" atau "files"
+          mode={importMode} 
           onClose={handleCloseImport}
         />
       )}

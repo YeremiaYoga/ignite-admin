@@ -23,33 +23,13 @@ export default function LootImportModal({ onClose }) {
           ? localStorage.getItem("admin_token")
           : null;
 
-      // baca semua file, merge ke satu array JSON
-      const allItems = [];
+      const formData = new FormData();
+      files.forEach((f) => formData.append("files", f));
 
-      for (const f of files) {
-        const text = await f.text();
-        try {
-          const json = JSON.parse(text);
-          if (Array.isArray(json)) {
-            allItems.push(...json);
-          } else if (json && typeof json === "object") {
-            allItems.push(json);
-          }
-        } catch (e) {
-          console.error("❌ Failed to parse JSON from file:", f.name, e);
-        }
-      }
-
-      if (!allItems.length) {
-        setResult({ error: "No valid JSON objects found in selected files." });
-        return;
-      }
-
-      const res = await fetch(`${API}/foundry/loots/import`, {
+      const res = await fetch(`${API}/foundry/loots/import-files`, {
         method: "POST",
-        body: JSON.stringify(allItems),
+        body: formData,
         headers: {
-          "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
@@ -190,10 +170,16 @@ export default function LootImportModal({ onClose }) {
                   ✅ Imported {result.imported ?? result.items?.length ?? 0}{" "}
                   items.
                 </p>
+                {typeof result.totalFiles === "number" && (
+                  <p className="text-slate-300">
+                    📁 Files processed: {result.totalFiles} (parsed items:{" "}
+                    {result.totalParsedItems ?? "?"})
+                  </p>
+                )}
                 {Array.isArray(result.errors) && result.errors.length > 0 && (
                   <p className="text-amber-300">
-                    ⚠ {result.errors.length} item failed to import (check
-                    response / console for details).
+                    ⚠ {result.errors.length} item/file gagal diimport (cek
+                    detail di response / console).
                   </p>
                 )}
               </>

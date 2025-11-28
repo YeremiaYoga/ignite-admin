@@ -6,7 +6,7 @@ import { X, UploadCloud, FileJson2 } from "lucide-react";
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 export default function SpellImportModal({ onClose }) {
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -23,30 +23,15 @@ export default function SpellImportModal({ onClose }) {
           ? localStorage.getItem("admin_token")
           : null;
 
-      const allItems = [];
+      const formData = new FormData();
+      files.forEach((f) => formData.append("files", f));
 
-      for (const f of files) {
-        const text = await f.text();
-        try {
-          const json = JSON.parse(text);
-          if (Array.isArray(json)) allItems.push(...json);
-          else if (json && typeof json === "object") allItems.push(json);
-        } catch (e) {
-          console.error("❌ Failed to parse JSON from file:", f.name, e);
-        }
-      }
-
-      if (!allItems.length) {
-        setResult({ error: "No valid JSON objects found in selected files." });
-        return;
-      }
-
-      const res = await fetch(`${API}/foundry/spells/import`, {
+      const res = await fetch(`${API}/foundry/spells/import-files`, {
         method: "POST",
-        body: JSON.stringify(allItems),
+        body: formData,
         headers: {
-          "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        
         },
       });
 
@@ -69,7 +54,7 @@ export default function SpellImportModal({ onClose }) {
 
     if (!validFiles.length) return;
 
-    setFiles(validFiles);
+    setFiles(validFiles); 
     setResult(null);
   };
 
@@ -77,7 +62,9 @@ export default function SpellImportModal({ onClose }) {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    handleFileSelect(e.dataTransfer.files);
+
+    const fileList = e.dataTransfer.files;
+    handleFileSelect(fileList);
   };
 
   const handleDragOver = (e) => {
@@ -144,7 +131,7 @@ export default function SpellImportModal({ onClose }) {
             id="spell-json-input"
             type="file"
             accept=".json"
-            multiple
+            multiple 
             className="hidden"
             onChange={(e) => handleFileSelect(e.target.files)}
           />
@@ -184,10 +171,16 @@ export default function SpellImportModal({ onClose }) {
                   ✅ Imported {result.imported ?? result.items?.length ?? 0}{" "}
                   items.
                 </p>
+                {typeof result.totalFiles === "number" && (
+                  <p className="text-slate-300">
+                    📁 Files processed: {result.totalFiles} (parsed items:{" "}
+                    {result.totalParsedItems ?? "?"})
+                  </p>
+                )}
                 {Array.isArray(result.errors) && result.errors.length > 0 && (
                   <p className="text-amber-300">
-                    ⚠ {result.errors.length} item failed to import (check
-                    response / console for details).
+                    ⚠ {result.errors.length} item/file gagal diimport (cek
+                    detail di response / console).
                   </p>
                 )}
               </>
