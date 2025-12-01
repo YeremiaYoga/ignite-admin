@@ -33,7 +33,11 @@ export default function SpellTable() {
       });
 
       if (!res.ok) {
-        console.error("❌ Failed to load spells:", res.status, await res.text());
+        console.error(
+          "❌ Failed to load spells:",
+          res.status,
+          await res.text()
+        );
         return;
       }
 
@@ -70,14 +74,11 @@ export default function SpellTable() {
     const m = mode === "raw" ? "raw" : "format";
 
     try {
-      const res = await fetch(
-        `${API}/foundry/spells/${id}/export?mode=${m}`,
-        {
-          headers: {
-            ...getAuthHeader(),
-          },
-        }
-      );
+      const res = await fetch(`${API}/foundry/spells/${id}/export?mode=${m}`, {
+        headers: {
+          ...getAuthHeader(),
+        },
+      });
 
       if (!res.ok) {
         alert("Failed to export");
@@ -99,6 +100,103 @@ export default function SpellTable() {
     }
   };
 
+  const capitalize = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  // === RANGE (pakai objek range JSONB baru) ===
+  const formatRange = (x) => {
+    const range =
+      x.range || x.format_data?.range || x.raw_data?.system?.range;
+
+    if (!range) return "-";
+
+    // string lama
+    if (typeof range === "string") return range;
+
+    const value = range.value;
+    const units = (range.units || range.unit || "").toLowerCase();
+
+    // Self / Touch → cuma tulis kata-nya saja
+    if (units === "self" || units === "touch") {
+      return capitalize(units);
+    }
+
+    const num = Number(value);
+
+    if (!Number.isNaN(num) && num > 0 && units) {
+      return `${num} ${units}`;
+    }
+
+    if (units) return capitalize(units);
+
+    return "-";
+  };
+
+  // === ACTIVATION (pakai objek activation JSONB baru) ===
+  const formatActivation = (x) => {
+    const activation =
+      x.activation ||
+      x.format_data?.activation ||
+      x.raw_data?.system?.activation;
+
+    if (!activation || typeof activation !== "object") return "-";
+
+    const v = activation.value;
+    const t = activation.type;
+    const c = activation.condition;
+
+    let base = "";
+
+    if (v != null && v !== "" && t) {
+      base = `${v} ${t}`;
+    } else if (t) {
+      base = t;
+    } else if (v != null && v !== "") {
+      base = String(v);
+    }
+
+    if (c) {
+      return base ? `${base} (${c})` : c;
+    }
+
+    return base || "-";
+  };
+
+  // === DURATION (pakai objek duration JSONB baru) ===
+  const formatDuration = (x) => {
+    const duration =
+      x.duration ||
+      x.format_data?.duration ||
+      x.raw_data?.system?.duration;
+
+    if (!duration) return "-";
+
+    if (typeof duration === "string") return duration;
+
+    const value = duration.value;
+    const units = duration.units || duration.unit || "";
+    const concentration = duration.concentration;
+
+    let base = "";
+
+    if (value != null && value !== "") {
+      base = `${value} ${units}`.trim();
+    } else if (units) {
+      base = units;
+    }
+
+    if (!base) base = "-";
+
+    if (concentration) {
+      // contoh: "Concentration, up to 1 minute"
+      return `Concentration, up to ${base}`;
+    }
+
+    return base;
+  };
+
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-700 rounded-xl p-4 shadow">
       <div className="overflow-x-auto">
@@ -114,7 +212,6 @@ export default function SpellTable() {
               <th className="py-2 px-2">Range</th>
               <th className="py-2 px-2">Activation</th>
               <th className="py-2 px-2">Duration</th>
-              <th className="py-2 px-2">Target</th>
               <th className="py-2 px-2">Compendium</th>
               <th className="py-2 px-2">Source</th>
               <th className="py-2 px-2">Actions</th>
@@ -157,10 +254,11 @@ export default function SpellTable() {
                   <td className="py-2 px-2 max-w-xs truncate">
                     {x.properties || "-"}
                   </td>
-                  <td className="py-2 px-2">{x.range || "-"}</td>
-                  <td className="py-2 px-2">{x.activation || "-"}</td>
-                  <td className="py-2 px-2">{x.duration || "-"}</td>
-                  <td className="py-2 px-2">{x.target || "-"}</td>
+
+                  <td className="py-2 px-2">{formatRange(x)}</td>
+                  <td className="py-2 px-2">{formatActivation(x)}</td>
+                  <td className="py-2 px-2">{formatDuration(x)}</td>
+
                   <td className="py-2 px-2 max-w-xs truncate">
                     {x.compendium_source || "-"}
                   </td>
