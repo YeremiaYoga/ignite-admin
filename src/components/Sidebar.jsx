@@ -66,6 +66,7 @@ export default function Sidebar() {
       icon: Users,
       children: [
         { label: "Spells", href: "/dashboard/abilities-management/spells" },
+         { label: "Spells Add On", href: "/dashboard/abilities-management/spells-add-on" },
         { label: "Feature", href: "/dashboard/abilities-management/feature" },
       ],
     },
@@ -98,6 +99,7 @@ export default function Sidebar() {
         { label: "Modifier", href: "/dashboard/builder/modifier" },
         { label: "Theme Campaign", href: "/dashboard/builder/theme-campaign" },
         { label: "Genre Campaign", href: "/dashboard/builder/genre-campaign" },
+        { label: "Token Border", href: "/dashboard/builder/token-border" },
       ],
     },
     { label: "Setting", icon: Settings, href: "/dashboard/setting" },

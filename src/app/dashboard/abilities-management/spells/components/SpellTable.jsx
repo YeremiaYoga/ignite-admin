@@ -42,6 +42,7 @@ export default function SpellTable() {
       }
 
       const json = await res.json();
+      console.log(json);
       setData(json.items || []);
     } catch (err) {
       console.error("❌ Failed to load spells:", err);
