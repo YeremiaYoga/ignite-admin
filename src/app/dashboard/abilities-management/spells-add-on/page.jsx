@@ -15,7 +15,8 @@ const FIELDS = [
 export default function SpellsAddOnPage() {
   const [selectedSpell, setSelectedSpell] = useState(null);
   const [selectedField, setSelectedField] = useState(null);
-  const [refresh, setRefresh] = useState(0);     // <<====== ADD refresh
+  const [refresh, setRefresh] = useState(0);
+  const [search, setSearch] = useState("");
 
   const handleOpenModal = (spell, key) => {
     const field = FIELDS.find((f) => f.key === key);
@@ -32,8 +33,21 @@ export default function SpellsAddOnPage() {
     <div className="p-6">
       <h1 className="text-xl font-bold mb-5">Spell Add-On Management</h1>
 
-      {/* TABLE + refresh trigger */}
-      <AddOnTable onOpenModal={handleOpenModal} refresh={refresh} />
+      {/* 🔍 Search Input */}
+      {/* <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search spell name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full max-w-xs px-3 py-2 rounded-lg border border-slate-600 
+                     bg-slate-900/50 text-sm text-gray-200 outline-none focus:ring-2 
+                     focus:ring-blue-500"
+        />
+      </div> */}
+
+      {/* Tabel + search + refresh */}
+      <AddOnTable onOpenModal={handleOpenModal} refresh={refresh} search={search} />
 
       {selectedSpell && selectedField && (
         <AddOnFormModal
@@ -41,7 +55,7 @@ export default function SpellsAddOnPage() {
           field={selectedField}
           onClose={handleClose}
           onSaved={() => {
-            setRefresh((x) => x + 1); // 🔥 Auto reload tabel
+            setRefresh((x) => x + 1);
             handleClose();
           }}
         />

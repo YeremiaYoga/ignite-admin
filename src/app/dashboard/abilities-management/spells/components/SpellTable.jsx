@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-export default function SpellTable() {
+export default function SpellTable({ search = "" }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -198,6 +198,25 @@ export default function SpellTable() {
     return base;
   };
 
+  // 🔍 FILTER: pakai props `search` dari page
+  const searchKey = (search || "").toLowerCase().trim();
+
+  const filteredData = searchKey
+    ? data.filter((x) => {
+        const name = (x.name || "").toLowerCase();
+        const school = (x.school || "").toLowerCase();
+        const comp = (x.compendium_source || "").toLowerCase();
+        const props = (x.properties || "").toLowerCase();
+
+        return (
+          name.includes(searchKey) ||
+          school.includes(searchKey) ||
+          comp.includes(searchKey) ||
+          props.includes(searchKey)
+        );
+      })
+    : data;
+
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-700 rounded-xl p-4 shadow">
       <div className="overflow-x-auto">
@@ -225,14 +244,14 @@ export default function SpellTable() {
                   Loading...
                 </td>
               </tr>
-            ) : data.length === 0 ? (
+            ) : filteredData.length === 0 ? (
               <tr>
                 <td colSpan={13} className="py-3 text-center text-gray-400">
                   No spell data yet.
                 </td>
               </tr>
             ) : (
-              data.map((x) => (
+              filteredData.map((x) => (
                 <tr key={x.id} className="border-b border-slate-800">
                   <td className="py-2 px-2">
                     {x.image ? (
