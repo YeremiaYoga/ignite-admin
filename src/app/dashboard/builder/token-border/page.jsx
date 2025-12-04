@@ -253,13 +253,13 @@ export default function TokenBorderManagementPage() {
       )}
 
       {/* Table */}
-      {/* <TokenBorderTable
+      <TokenBorderTable
         borders={borders}
         loading={loading}
         onView={openView}
         onEdit={openEdit}
         onDelete={handleDelete}
-      /> */}
+      />
 
       {/* Form modal (Create / Edit / View) */}
       <TokenBorderFormModal
