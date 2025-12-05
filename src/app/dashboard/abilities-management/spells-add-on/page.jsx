@@ -34,7 +34,7 @@ export default function SpellsAddOnPage() {
       <h1 className="text-xl font-bold mb-5">Spell Add-On Management</h1>
 
       {/* 🔍 Search Input */}
-      {/* <div className="mb-4">
+      <div className="mb-4">
         <input
           type="text"
           placeholder="Search spell name..."
@@ -44,7 +44,7 @@ export default function SpellsAddOnPage() {
                      bg-slate-900/50 text-sm text-gray-200 outline-none focus:ring-2 
                      focus:ring-blue-500"
         />
-      </div> */}
+      </div>
 
       {/* Tabel + search + refresh */}
       <AddOnTable onOpenModal={handleOpenModal} refresh={refresh} search={search} />

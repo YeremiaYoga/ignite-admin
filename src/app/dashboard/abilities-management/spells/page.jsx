@@ -43,7 +43,7 @@ export default function SpellManagementPage() {
       </div>
 
       {/* 🔍 Search */}
-      {/* <div className="mb-6">
+      <div className="mb-6">
         <input
           type="text"
           placeholder="Search spell name, school, or compendium..."
@@ -51,7 +51,7 @@ export default function SpellManagementPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="w-full max-w-md px-3 py-2 rounded-lg border border-slate-600 bg-slate-900/50 text-sm text-gray-200 outline-none focus:ring-2 focus:ring-blue-500"
         />
-      </div> */}
+      </div>
 
       <SpellTable search={search} />
 
