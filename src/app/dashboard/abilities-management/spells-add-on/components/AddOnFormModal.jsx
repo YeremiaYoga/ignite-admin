@@ -18,6 +18,8 @@ const DAMAGE_TYPE_OPTIONS = [
   { label: "Radiant", value: "radiant" },
   { label: "Slashing", value: "slashing" },
   { label: "Thunder", value: "thunder" },
+  { label: "Healing", value: "healing" },
+  { label: "Temporary Healing", value: "temporary_healing" },
 ];
 
 const CLASS_OPTIONS = [
@@ -86,9 +88,7 @@ export default function AddOnFormModal({ spell, field, onClose, onSaved }) {
   if (!spell) return null;
 
   // opsi yg belum dipilih (pakai label)
-  const availableOptions = OPTIONS.filter(
-    (opt) => !values.includes(opt.label)
-  );
+  const availableOptions = OPTIONS.filter((opt) => !values.includes(opt.label));
 
   const addValue = (label) => {
     if (!label) return;
@@ -153,9 +153,7 @@ export default function AddOnFormModal({ spell, field, onClose, onSaved }) {
         </div>
 
         {/* Select */}
-        <label className="block text-sm font-medium mb-1">
-          {field.label}
-        </label>
+        <label className="block text-sm font-medium mb-1">{field.label}</label>
         <select
           value={tempSelect}
           onChange={(e) => addValue(e.target.value)}
