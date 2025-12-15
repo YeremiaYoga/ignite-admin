@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 
 export default function CharacterModal({ character, onClose }) {
+  console.log(character);
   if (!character) return null;
 
   const InfoRow = ({ label, value }) => (

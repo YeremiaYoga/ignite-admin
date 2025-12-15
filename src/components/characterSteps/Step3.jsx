@@ -33,18 +33,18 @@ export default function Step3({ data, allData, onChange, mode }) {
       <div className="grid grid-cols-5 gap-4">
         <div className="col-span-3">
           <div className="flex items-center justify-between mb-1">
-            <label className="text-sm font-medium">Appearance</label>
+            <label className="text-sm font-medium">Apperance</label>
             <InputField
               type="toggleIcon"
-              value={data.appearance_visibility}
-              onChange={(v) => onChange("appearance_visibility", v)}
+              value={data.apperance_visibility}
+              onChange={(v) => onChange("apperance_visibility", v)}
             />
           </div>
           <InputField
             label=""
             type="textarea"
-            value={data.appearance || ""}
-            onChange={(val) => onChange("appearance", val)}
+            value={data.apperance || ""}
+            onChange={(val) => onChange("apperance", val)}
             placeholder="Write apperance here..."
             rows={15}
           />
@@ -185,8 +185,8 @@ export default function Step3({ data, allData, onChange, mode }) {
       <div className="grid grid-cols-9 gap-4">
         <div className="col-span-3">
           <MultipleInput
-            labels="Notable details (Appearance)"
-            label="details of thou appearance (Exp : A very tall woman)"
+            labels="Notable details (Apperance)"
+            label="details of thou apperance (Exp : A very tall woman)"
             btnLabel="Add Details"
             items={data.notable_details || [""]}
             onChange={(items) => onChange("notable_details", items)}
