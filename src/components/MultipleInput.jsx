@@ -9,16 +9,16 @@ export default function MultipleInput({
   btnLabel = "Add",
   items = [],
   onChange,
-  type = "string", // "string" | "object"
-  fields = ["name"], // hanya untuk type object
-  selectOptions = null, // hanya untuk single field select
-  columns = 1, // jumlah kolom untuk object fields
+  type = "string", 
+  fields = ["name"], 
+  selectOptions = null, 
+  columns = 1, 
 }) {
   const [entries, setEntries] = useState(
     items.length
       ? items
       : type === "object"
-      ? [Object.fromEntries(fields.map((f) => [f, ""]))] // buat objek kosong sesuai fields
+      ? [Object.fromEntries(fields.map((f) => [f, ""]))] 
       : [""]
   );
 

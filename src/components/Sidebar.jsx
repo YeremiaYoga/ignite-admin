@@ -68,6 +68,7 @@ export default function Sidebar() {
         { label: "Spells", href: "/dashboard/abilities-management/spells" },
          { label: "Spells Add On", href: "/dashboard/abilities-management/spells-add-on" },
         { label: "Feature", href: "/dashboard/abilities-management/feature" },
+        { label: "Feat", href: "/dashboard/abilities-management/feat" },
       ],
     },
     {
