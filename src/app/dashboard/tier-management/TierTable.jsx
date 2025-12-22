@@ -7,17 +7,13 @@ export default function TierTable({ tiers, loading, onEdit, onDetail, onDelete }
   const [processingId, setProcessingId] = useState(null);
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-  // 🧩 Sync dari props → state internal
   useEffect(() => {
     if (tiers && tiers.length) setTierList(tiers);
   }, [tiers]);
 
-  // 🔄 Toggle active
   async function toggleActive(tier) {
     try {
       setProcessingId(tier.id);
-
-      // langsung update UI (optimistic)
       setTierList((prev) =>
         prev.map((t) =>
           t.id === tier.id ? { ...t, is_active: !t.is_active } : t
@@ -37,7 +33,6 @@ export default function TierTable({ tiers, loading, onEdit, onDetail, onDelete }
       if (!res.ok) throw new Error(json.error || "Failed to toggle tier");
     } catch (err) {
       console.error("❌ Toggle active error:", err);
-      // rollback jika gagal
       setTierList((prev) =>
         prev.map((t) =>
           t.id === tier.id ? { ...t, is_active: tier.is_active } : t
@@ -50,26 +45,33 @@ export default function TierTable({ tiers, loading, onEdit, onDetail, onDelete }
 
   if (loading)
     return (
-      <div className="text-gray-500 text-sm  rounded-md p-4 shadow-sm border">
+      <div className="text-gray-500 text-sm rounded-md p-4 shadow-sm border">
         Loading tiers...
       </div>
     );
 
   if (!tierList.length)
     return (
-      <div className="text-gray-400 text-sm italic  rounded-md p-4 shadow-sm border">
+      <div className="text-gray-400 text-sm italic rounded-md p-4 shadow-sm border">
         No tiers found.
       </div>
     );
 
   return (
     <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-      <table className="w-full text-sm text-left border-collapse">
+      <table className="w-full table-auto text-sm text-left border-collapse">
         <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
           <tr>
-            <th className="p-3 text-left">Name</th>
-            <th className="p-3 text-left">Slug</th>
-            <th className="p-3 text-center">Character Limit</th>
+            <th className="p-3">Name</th>
+            <th className="p-3">Slug</th>
+            <th className="p-3 text-center">Char</th>
+            <th className="p-3 text-center">World</th>
+            <th className="p-3 text-center">Storage</th>
+            <th className="p-3 text-center">Camp</th>
+            <th className="p-3 text-center">FVTT</th>
+            <th className="p-3 text-center">Group</th>
+            <th className="p-3 text-center">Era</th>
+            <th className="p-3 text-center">Friend</th>
             <th className="p-3 text-center">Active</th>
             <th className="p-3 text-center">Action</th>
           </tr>
@@ -79,17 +81,43 @@ export default function TierTable({ tiers, loading, onEdit, onDetail, onDelete }
           {tierList.map((tier) => (
             <tr
               key={tier.id}
-              className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+              className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               <td className="p-3 font-semibold text-gray-900 dark:text-gray-100">
                 {tier.name}
               </td>
-              <td className="p-3 text-gray-600 dark:text-gray-300">{tier.slug}</td>
-              <td className="p-3 text-center">
-                {tier.is_unlimited ? "Unlimited" : tier.character_limit}
+
+              <td className="p-3 text-gray-600 dark:text-gray-300">
+                {tier.slug}
               </td>
 
-              {/* ✅ Flowbite toggle */}
+              <td className="p-3 text-center">
+                {tier.is_unlimited ? "∞" : tier.character_limit ?? "-"}
+              </td>
+
+              <td className="p-3 text-center">
+                {tier.is_unlimited ? "∞" : tier.world_limit ?? "-"}
+              </td>
+              <td className="p-3 text-center">
+                {tier.is_unlimited ? "∞" : tier.storage_limit ?? "-"}
+              </td>
+              <td className="p-3 text-center">
+                {tier.is_unlimited ? "∞" : tier.campaign_limit ?? "-"}
+              </td>
+              <td className="p-3 text-center">
+                {tier.is_unlimited ? "∞" : tier.fvtt_limit ?? "-"}
+              </td>
+              <td className="p-3 text-center">
+                {tier.is_unlimited ? "∞" : tier.group_limit ?? "-"}
+              </td>
+              <td className="p-3 text-center">
+                {tier.is_unlimited ? "∞" : tier.era_limit ?? "-"}
+              </td>
+              <td className="p-3 text-center">
+                {tier.is_unlimited ? "∞" : tier.friend_limit ?? "-"}
+              </td>
+
+              {/* Active toggle */}
               <td className="p-3 text-center">
                 <label
                   className={`inline-flex items-center cursor-pointer ${
@@ -103,33 +131,34 @@ export default function TierTable({ tiers, loading, onEdit, onDetail, onDelete }
                     disabled={processingId === tier.id}
                     className="sr-only peer"
                   />
-                  <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 dark:peer-focus:ring-emerald-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-600 dark:peer-checked:bg-emerald-600"></div>
+                  <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 dark:peer-focus:ring-emerald-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                 </label>
               </td>
 
-              {/* 🧩 Actions */}
-              <td className="p-3 text-center flex justify-center gap-2">
-                <button
-                  onClick={() => onDetail(tier)}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
-                  title="View Details"
-                >
-                  <Eye className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onEdit(tier)}
-                  className="text-blue-500 hover:text-blue-700"
-                  title="Edit Tier"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onDelete(tier)}
-                  className="text-red-500 hover:text-red-700"
-                  title="Delete Tier"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+              <td className="p-3">
+                <div className="flex justify-center gap-2">
+                  <button
+                    onClick={() => onDetail(tier)}
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+                    title="View Details"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => onEdit(tier)}
+                    className="text-blue-500 hover:text-blue-700"
+                    title="Edit Tier"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => onDelete(tier)}
+                    className="text-red-500 hover:text-red-700"
+                    title="Delete Tier"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
