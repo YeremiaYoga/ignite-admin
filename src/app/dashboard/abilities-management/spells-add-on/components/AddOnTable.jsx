@@ -43,12 +43,22 @@ export default function AddOnTable({ onOpenModal, refresh, search = "" }) {
     return String(v);
   };
 
+  const formatHomebrew = (sp) => {
+    // kalau backend kamu sudah join homebrew: { id,name,code } (seperti ignite controller)
+    if (sp?.homebrew?.code) return sp.homebrew.code;
+    if (sp?.homebrew?.name) return sp.homebrew.name;
+
+    // fallback kalau cuma ada homebrew_id
+    if (sp?.homebrew_id) return `#${String(sp.homebrew_id).slice(0, 8)}`;
+    return "-";
+  };
+
   const ACTION_FIELDS = [
-    { key: "classes", label: "Classes" },
-    { key: "damage_type", label: "Damage Type" },
-    // { key: "subclasses", label: "Subclasses" },
-    // { key: "species", label: "Species" },
-    // { key: "subspecies", label: "Subspecies" },
+    { key: "classes", label: "Classes", api: "classes", method: "PUT" },
+    { key: "damage_type", label: "Damage Type", api: "damage-type", method: "PUT" },
+
+    // ✅ NEW: Homebrew
+    { key: "homebrew_id", label: "Homebrew", api: "homebrew-source", method: "PATCH" },
   ];
 
   const searchText = search.toLowerCase().trim();
@@ -59,10 +69,12 @@ export default function AddOnTable({ onOpenModal, refresh, search = "" }) {
         const name = (sp.name || "").toLowerCase();
         const classes = format(sp.classes).toLowerCase();
         const dmg = format(sp.damage_type).toLowerCase();
+        const hb = formatHomebrew(sp).toLowerCase();
         return (
           name.includes(searchText) ||
           classes.includes(searchText) ||
-          dmg.includes(searchText)
+          dmg.includes(searchText) ||
+          hb.includes(searchText)
         );
       });
 
@@ -76,6 +88,10 @@ export default function AddOnTable({ onOpenModal, refresh, search = "" }) {
               <th className="py-2 px-2">Name</th>
               <th className="py-2 px-2">Classes</th>
               <th className="py-2 px-2">Damage Type</th>
+
+              {/* ✅ NEW */}
+              <th className="py-2 px-2">Homebrew</th>
+
               <th className="py-2 px-2">Actions</th>
             </tr>
           </thead>
@@ -83,13 +99,13 @@ export default function AddOnTable({ onOpenModal, refresh, search = "" }) {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} className="py-3 text-center text-gray-500">
+                <td colSpan={6} className="py-3 text-center text-gray-500">
                   Loading...
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-3 text-center text-gray-400">
+                <td colSpan={6} className="py-3 text-center text-gray-400">
                   No data found.
                 </td>
               </tr>
@@ -117,18 +133,21 @@ export default function AddOnTable({ onOpenModal, refresh, search = "" }) {
                     {format(sp.classes)}
                   </td>
 
-
                   <td className="py-2 px-2 max-w-xs truncate">
                     {format(sp.damage_type)}
                   </td>
 
-      
+                  {/* ✅ NEW */}
+                  <td className="py-2 px-2 max-w-xs truncate">
+                    {formatHomebrew(sp)}
+                  </td>
+
                   <td className="py-2 px-2">
                     <div className="flex flex-wrap gap-2">
                       {ACTION_FIELDS.map((btn) => (
                         <button
                           key={btn.key}
-                          onClick={() => onOpenModal?.(sp, btn.key)}
+                          onClick={() => onOpenModal?.(sp, btn)}
                           className="px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs"
                         >
                           {btn.label}

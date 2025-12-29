@@ -1,16 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import AddOnTable from "./components/AddOnTable";
 import AddOnFormModal from "./components/AddOnFormModal";
-
-const FIELDS = [
-  { key: "classes", label: "Classes", api: "classes" },
-  { key: "damage_type", label: "Damage Type", api: "damage-type" },
-  { key: "subclasses", label: "Subclasses", api: "subclasses" },
-  { key: "species", label: "Species", api: "species" },
-  { key: "subspecies", label: "Subspecies", api: "subspecies" },
-];
 
 export default function SpellsAddOnPage() {
   const [selectedSpell, setSelectedSpell] = useState(null);
@@ -18,10 +10,33 @@ export default function SpellsAddOnPage() {
   const [refresh, setRefresh] = useState(0);
   const [search, setSearch] = useState("");
 
-  const handleOpenModal = (spell, key) => {
-    const field = FIELDS.find((f) => f.key === key);
+  // ✅ Field registry (sekarang include method)
+  const FIELDS = useMemo(
+    () => [
+      { key: "classes", label: "Classes", api: "classes", method: "PUT" },
+      { key: "damage_type", label: "Damage Type", api: "damage-type", method: "PUT" },
+
+      // kalau kamu masih mau aktifkan:
+      { key: "subclasses", label: "Subclasses", api: "subclasses", method: "PUT" },
+      { key: "species", label: "Species", api: "species", method: "PUT" },
+      { key: "subspecies", label: "Subspecies", api: "subspecies", method: "PUT" },
+
+      // ✅ NEW: homebrew update pakai PATCH route
+      { key: "homebrew_id", label: "Homebrew", api: "homebrew-source", method: "PATCH" },
+    ],
+    []
+  );
+
+  // ✅ AddOnTable sekarang ngirim (spell, fieldObj)
+  const handleOpenModal = (spell, fieldObj) => {
+    // fallback: kalau ternyata yang terkirim masih key string
+    const field =
+      typeof fieldObj === "string"
+        ? FIELDS.find((f) => f.key === fieldObj)
+        : fieldObj;
+
     setSelectedSpell(spell);
-    setSelectedField(field);
+    setSelectedField(field || null);
   };
 
   const handleClose = () => {
@@ -46,8 +61,12 @@ export default function SpellsAddOnPage() {
         />
       </div>
 
-      {/* Tabel + search + refresh */}
-      <AddOnTable onOpenModal={handleOpenModal} refresh={refresh} search={search} />
+      <AddOnTable
+        onOpenModal={handleOpenModal}
+        refresh={refresh}
+        search={search}
+        fields={FIELDS} // ✅ optional (kalau kamu mau AddOnTable pakai ini)
+      />
 
       {selectedSpell && selectedField && (
         <AddOnFormModal
