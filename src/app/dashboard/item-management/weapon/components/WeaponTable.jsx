@@ -133,7 +133,6 @@ export default function WeaponTable() {
             ) : (
               data.map((w) => (
                 <tr key={w.id} className="border-b border-slate-800">
-                  {/* IMG */}
                   <td className="py-2 px-2">
                     {w.image ? (
                       <img

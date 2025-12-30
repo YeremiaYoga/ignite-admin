@@ -42,14 +42,12 @@ const CLASS_OPTIONS = [
 ];
 
 export default function AddOnFormModal({ spell, field, onClose, onSaved }) {
-  // values: untuk array fields (classes / damage_type) -> label pills
   const [values, setValues] = useState([]);
   const [tempSelect, setTempSelect] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // ✅ homebrew state
   const [homebrewOptions, setHomebrewOptions] = useState([]);
-  const [homebrewId, setHomebrewId] = useState(""); // "" = null
+  const [homebrewId, setHomebrewId] = useState(""); 
   const [loadingHomebrew, setLoadingHomebrew] = useState(false);
   const getAuthHeader = () => {
     const token =
@@ -59,14 +57,12 @@ export default function AddOnFormModal({ spell, field, onClose, onSaved }) {
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
-  // OPTIONS untuk fields normal
   const OPTIONS = useMemo(() => {
     if (field.key === "damage_type") return DAMAGE_TYPE_OPTIONS;
     if (field.key === "classes") return CLASS_OPTIONS;
     return [];
   }, [field.key]);
 
-  // ✅ fetch homebrew sources untuk modal homebrew
   useEffect(() => {
     async function fetchHomebrewSources() {
       try {
@@ -138,7 +134,6 @@ export default function AddOnFormModal({ spell, field, onClose, onSaved }) {
 
   if (!spell) return null;
 
-  // ====== UI helpers untuk array fields ======
   const availableOptions = OPTIONS.filter((opt) => !values.includes(opt.label));
 
   const addValue = (label) => {
@@ -156,7 +151,6 @@ export default function AddOnFormModal({ spell, field, onClose, onSaved }) {
     try {
       setSaving(true);
 
-      // ✅ HOME BREW SAVE (PATCH)
       if (field.key === "homebrew_id") {
         const body = { homebrew_id: homebrewId === "" ? null : homebrewId };
 
@@ -182,7 +176,6 @@ export default function AddOnFormModal({ spell, field, onClose, onSaved }) {
         return;
       }
 
-      // ====== default save (PUT) untuk array fields ======
       const body = {
         [field.key]: values.length > 0 ? values : null,
       };

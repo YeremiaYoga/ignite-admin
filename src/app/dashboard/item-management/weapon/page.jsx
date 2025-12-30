@@ -6,7 +6,7 @@ import WeaponImportModal from "./components/WeaponImportModal";
 
 export default function WeaponManagementPage() {
   const [showImport, setShowImport] = useState(false);
-  const [importMode, setImportMode] = useState(null); // "body" | "files" | null
+  const [importMode, setImportMode] = useState(null); 
 
   const handleOpenImport = (mode) => {
     setImportMode(mode);
