@@ -241,7 +241,6 @@ export default function AddOnFormModal({ spell, field, onClose, onSaved }) {
           </button>
         </div>
 
-        {/* ✅ HOME BREW UI */}
         {field.key === "homebrew_id" ? (
           <>
             <label className="block text-sm font-medium mb-1">
