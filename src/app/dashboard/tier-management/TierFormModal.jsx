@@ -18,6 +18,7 @@ export default function TierFormModal({ tier, onClose, onSaved }) {
     group_limit: tier?.group_limit ?? "",
     era_limit: tier?.era_limit ?? "",
     friend_limit: tier?.friend_limit ?? "",
+    journal_limit: tier?.journal_limit ?? "", // ✅ NEW
   });
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -57,6 +58,7 @@ export default function TierFormModal({ tier, onClose, onSaved }) {
         cleanForm.group_limit = null;
         cleanForm.era_limit = null;
         cleanForm.friend_limit = null;
+        cleanForm.journal_limit = null; // ✅ NEW
       } else {
         cleanForm.character_limit = parseLimit(form.character_limit);
         cleanForm.world_limit = parseLimit(form.world_limit);
@@ -66,6 +68,7 @@ export default function TierFormModal({ tier, onClose, onSaved }) {
         cleanForm.group_limit = parseLimit(form.group_limit);
         cleanForm.era_limit = parseLimit(form.era_limit);
         cleanForm.friend_limit = parseLimit(form.friend_limit);
+        cleanForm.journal_limit = parseLimit(form.journal_limit); // ✅ NEW
       }
 
       const res = await fetch(url, {
@@ -139,6 +142,7 @@ export default function TierFormModal({ tier, onClose, onSaved }) {
                   disabled={limitsDisabled}
                 />
               </div>
+
               <div>
                 <label className="block mb-1">World</label>
                 <input
@@ -151,6 +155,7 @@ export default function TierFormModal({ tier, onClose, onSaved }) {
                   disabled={limitsDisabled}
                 />
               </div>
+
               <div>
                 <label className="block mb-1">Storage</label>
                 <input
@@ -165,6 +170,7 @@ export default function TierFormModal({ tier, onClose, onSaved }) {
                   disabled={limitsDisabled}
                 />
               </div>
+
               <div>
                 <label className="block mb-1">Campaign</label>
                 <input
@@ -179,6 +185,7 @@ export default function TierFormModal({ tier, onClose, onSaved }) {
                   disabled={limitsDisabled}
                 />
               </div>
+
               <div>
                 <label className="block mb-1">FVTT</label>
                 <input
@@ -191,6 +198,7 @@ export default function TierFormModal({ tier, onClose, onSaved }) {
                   disabled={limitsDisabled}
                 />
               </div>
+
               <div>
                 <label className="block mb-1">Group</label>
                 <input
@@ -203,6 +211,7 @@ export default function TierFormModal({ tier, onClose, onSaved }) {
                   disabled={limitsDisabled}
                 />
               </div>
+
               <div>
                 <label className="block mb-1">Era</label>
                 <input
@@ -215,14 +224,27 @@ export default function TierFormModal({ tier, onClose, onSaved }) {
                   disabled={limitsDisabled}
                 />
               </div>
+
               <div>
                 <label className="block mb-1">Friend</label>
                 <input
                   type="number"
                   value={form.friend_limit ?? ""}
-                  onChange={(e) =>
-                    handleChange("friend_limit", e.target.value)
-                  }
+                  onChange={(e) => handleChange("friend_limit", e.target.value)}
+                  className={`w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none ${
+                    limitsDisabled ? "opacity-60 cursor-not-allowed" : ""
+                  }`}
+                  disabled={limitsDisabled}
+                />
+              </div>
+
+              {/* ✅ NEW JOURNAL */}
+              <div>
+                <label className="block mb-1">Journal</label>
+                <input
+                  type="number"
+                  value={form.journal_limit ?? ""}
+                  onChange={(e) => handleChange("journal_limit", e.target.value)}
                   className={`w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-2 py-1 rounded-md focus:ring-2 focus:ring-emerald-500 outline-none ${
                     limitsDisabled ? "opacity-60 cursor-not-allowed" : ""
                   }`}

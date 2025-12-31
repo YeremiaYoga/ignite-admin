@@ -72,6 +72,7 @@ export default function TierTable({ tiers, loading, onEdit, onDetail, onDelete }
             <th className="p-3 text-center">Group</th>
             <th className="p-3 text-center">Era</th>
             <th className="p-3 text-center">Friend</th>
+            <th className="p-3 text-center">Journal</th> {/* ✅ NEW */}
             <th className="p-3 text-center">Active</th>
             <th className="p-3 text-center">Action</th>
           </tr>
@@ -115,6 +116,11 @@ export default function TierTable({ tiers, loading, onEdit, onDetail, onDelete }
               </td>
               <td className="p-3 text-center">
                 {tier.is_unlimited ? "∞" : tier.friend_limit ?? "-"}
+              </td>
+
+              {/* ✅ NEW */}
+              <td className="p-3 text-center">
+                {tier.is_unlimited ? "∞" : tier.journal_limit ?? "-"}
               </td>
 
               {/* Active toggle */}

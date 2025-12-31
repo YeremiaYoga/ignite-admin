@@ -88,6 +88,12 @@ export default function TierDetailModal({ tier, onClose }) {
                 <span>Friend</span>
                 <span>{fmt(tier.friend_limit)}</span>
               </div>
+
+              {/* ✅ NEW */}
+              <div className="flex justify-between bg-gray-50 dark:bg-gray-700/40 px-2 py-1 rounded">
+                <span>Journal</span>
+                <span>{fmt(tier.journal_limit)}</span>
+              </div>
             </div>
           </div>
 
