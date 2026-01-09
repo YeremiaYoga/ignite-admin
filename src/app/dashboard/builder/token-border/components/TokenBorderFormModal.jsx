@@ -26,7 +26,6 @@ export default function TokenBorderFormModal({
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
       <div className="w-full max-w-3xl rounded-lg bg-slate-900 border border-slate-700 shadow-lg">
-
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
           <h2 className="text-sm font-semibold text-gray-100">{title}</h2>
           <button
@@ -39,7 +38,6 @@ export default function TokenBorderFormModal({
         </div>
 
         <form onSubmit={onSubmit} className="px-4 py-4 space-y-4">
-        
           <InputField
             label={
               <span className="flex items-center gap-1 text-xs text-gray-300">
@@ -89,8 +87,23 @@ export default function TokenBorderFormModal({
                 />
               </button>
             </div>
+            <div className="space-y-1">
+              <label className="block text-xs font-medium text-gray-300">
+                Release Date
+              </label>
 
-         
+              <input
+                type="date"
+                value={form.release_date || ""}
+                disabled={viewOnly}
+                onChange={(e) =>
+                  onChange({
+                    target: { name: "release_date", value: e.target.value },
+                  })
+                }
+                className="w-full rounded-md bg-slate-800 border border-slate-700 px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
           </div>
 
           <div className="space-y-1">

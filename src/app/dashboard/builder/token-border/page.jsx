@@ -9,14 +9,12 @@ const API_BASE =
     (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "")) ||
   "";
 
-// 🔑 JSON / normal fetch (no files)
 function getAuthHeaders() {
   if (typeof window === "undefined") return {};
   const token = localStorage.getItem("admin_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// 🔑 FormData fetch (multipart) – JANGAN set Content-Type
 function getAuthHeadersFormData() {
   if (typeof window === "undefined") return {};
   const token = localStorage.getItem("admin_token");
@@ -37,8 +35,9 @@ export default function TokenBorderManagementPage() {
   const [form, setForm] = useState({
     name: "",
     description: "",
-    image: null, // file
+    image: null,
     is_paid: false,
+    release_date: "",
   });
 
   // ---------- FETCH LIST ----------
@@ -81,6 +80,7 @@ export default function TokenBorderManagementPage() {
       description: "",
       image: null,
       is_paid: false,
+      release_date: "",
     });
     setShowForm(true);
   };
@@ -94,6 +94,7 @@ export default function TokenBorderManagementPage() {
       description: border.description || "",
       image: null,
       is_paid: !!border.is_paid,
+      release_date: border.release_date || "",
     });
     setShowForm(true);
   };
@@ -107,6 +108,7 @@ export default function TokenBorderManagementPage() {
       description: border.description || "",
       image: null,
       is_paid: !!border.is_paid,
+      release_date: border.release_date || "",
     });
     setShowForm(true);
   };
@@ -158,6 +160,7 @@ export default function TokenBorderManagementPage() {
         name: form.name.trim(),
         description: form.description.trim() || null,
         is_paid: form.is_paid,
+        release_date: form.release_date || null,
       };
 
       fd.append("data", JSON.stringify(payload));
@@ -205,13 +208,10 @@ export default function TokenBorderManagementPage() {
       setLoading(true);
       setError("");
 
-      const res = await fetch(
-        `${API_BASE}/admin/token-borders/${border.id}`,
-        {
-          method: "DELETE",
-          headers: getAuthHeaders(),
-        }
-      );
+      const res = await fetch(`${API_BASE}/admin/token-borders/${border.id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
 
       if (!res.ok) {
         throw new Error(`Failed to delete token border: ${res.status}`);
