@@ -140,7 +140,6 @@ export default function TokenBorderManagementPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (viewOnly) {
-      // kalau mode view, submit dianggap tidak ada
       closeForm();
       return;
     }

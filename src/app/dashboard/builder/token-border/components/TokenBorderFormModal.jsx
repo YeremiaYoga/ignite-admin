@@ -88,7 +88,7 @@ export default function TokenBorderFormModal({
               </button>
             </div>
             <div className="space-y-1">
-              <label className="block text-xs font-medium text-gray-300">
+              <label className="block text-xs font-medium ">
                 Release Date
               </label>
 
