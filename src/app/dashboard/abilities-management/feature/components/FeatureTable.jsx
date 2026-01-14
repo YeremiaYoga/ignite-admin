@@ -1,8 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
+const API = process.env.NEXT_PUBLIC_API_URL || "";
+
+function safeText(v) {
+  if (v == null) return "-";
+  if (typeof v === "string") return v.trim() || "-";
+  if (Array.isArray(v)) {
+    const s = v
+      .map((x) => (typeof x === "string" ? x : JSON.stringify(x)))
+      .join(", ");
+    return s || "-";
+  }
+  if (typeof v === "object") {
+    try {
+      return JSON.stringify(v);
+    } catch {
+      return "-";
+    }
+  }
+  return String(v);
+}
 
 export default function FeatureTable() {
   const [data, setData] = useState([]);
@@ -18,6 +37,7 @@ export default function FeatureTable() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchData = async () => {
@@ -74,14 +94,11 @@ export default function FeatureTable() {
     const m = mode === "raw" ? "raw" : "format";
 
     try {
-      const res = await fetch(
-        `${API}/foundry/features/${id}/export?mode=${m}`,
-        {
-          headers: {
-            ...getAuthHeader(),
-          },
-        }
-      );
+      const res = await fetch(`${API}/foundry/features/${id}/export?mode=${m}`, {
+        headers: {
+          ...getAuthHeader(),
+        },
+      });
 
       if (!res.ok) {
         alert("Failed to export");
@@ -103,6 +120,23 @@ export default function FeatureTable() {
     }
   };
 
+  const rows = useMemo(() => {
+    return (data || []).map((x) => {
+      const reqRaw =
+        x.requirements ??
+        x.requirement ??
+        x.prerequisites ??
+        x.prerequisite ??
+        x.req ??
+        null;
+
+      return {
+        ...x,
+        _requirementsText: safeText(reqRaw),
+      };
+    });
+  }, [data]);
+
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-700 rounded-xl p-4 shadow">
       <div className="overflow-x-auto">
@@ -112,26 +146,26 @@ export default function FeatureTable() {
               <th className="py-2 px-2">Image</th>
               <th className="py-2 px-2">Name</th>
               <th className="py-2 px-2">Type</th>
-              <th className="py-2 px-2">Compendium</th>
-              <th className="py-2 px-2">Source</th>
+              <th className="py-2 px-2">Requirements</th>
               <th className="py-2 px-2">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="py-3 text-center text-gray-500">
+                <td colSpan={5} className="py-3 text-center text-gray-500">
                   Loading...
                 </td>
               </tr>
-            ) : data.length === 0 ? (
+            ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-3 text-center text-gray-400">
+                <td colSpan={5} className="py-3 text-center text-gray-400">
                   No feature data yet.
                 </td>
               </tr>
             ) : (
-              data.map((x) => (
+              rows.map((x) => (
                 <tr key={x.id} className="border-b border-slate-800">
                   <td className="py-2 px-2">
                     {x.image ? (
@@ -149,10 +183,12 @@ export default function FeatureTable() {
 
                   <td className="py-2 px-2">{x.name}</td>
                   <td className="py-2 px-2">{x.type || "-"}</td>
-                  <td className="py-2 px-2 max-w-xs truncate">
-                    {x.compendium_source || "-"}
+
+                  <td className="py-2 px-2 max-w-sm">
+                    <p className="truncate text-slate-700 dark:text-slate-200">
+                      {x._requirementsText}
+                    </p>
                   </td>
-                  <td className="py-2 px-2">{x.source_book || "-"}</td>
 
                   <td className="py-2 px-2">
                     <div className="flex items-center gap-2">
