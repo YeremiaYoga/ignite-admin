@@ -42,7 +42,6 @@ export default function SpellManagementPage() {
         </div>
       </div>
 
-      {/* 🔍 Search */}
       <div className="mb-6">
         <input
           type="text"

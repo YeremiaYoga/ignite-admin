@@ -62,7 +62,6 @@ export default function FeatureImportModal({ onClose }) {
     setFiles((prev) => uniqByFileSignature([...prev, ...valid]));
     setResult(null);
 
-    // reset input supaya bisa select file yang sama lagi
     if (inputRef.current) inputRef.current.value = "";
   };
 
@@ -128,7 +127,6 @@ export default function FeatureImportModal({ onClose }) {
     }
   };
 
-  // drag handlers (lebih stabil, tidak flicker)
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();

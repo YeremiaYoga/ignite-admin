@@ -10,26 +10,21 @@ export default function SpellsAddOnPage() {
   const [refresh, setRefresh] = useState(0);
   const [search, setSearch] = useState("");
 
-  // ✅ Field registry (sekarang include method)
   const FIELDS = useMemo(
     () => [
       { key: "classes", label: "Classes", api: "classes", method: "PUT" },
       { key: "damage_type", label: "Damage Type", api: "damage-type", method: "PUT" },
 
-      // kalau kamu masih mau aktifkan:
       { key: "subclasses", label: "Subclasses", api: "subclasses", method: "PUT" },
       { key: "species", label: "Species", api: "species", method: "PUT" },
       { key: "subspecies", label: "Subspecies", api: "subspecies", method: "PUT" },
 
-      // ✅ NEW: homebrew update pakai PATCH route
       { key: "homebrew_id", label: "Homebrew", api: "homebrew-source", method: "PATCH" },
     ],
     []
   );
 
-  // ✅ AddOnTable sekarang ngirim (spell, fieldObj)
   const handleOpenModal = (spell, fieldObj) => {
-    // fallback: kalau ternyata yang terkirim masih key string
     const field =
       typeof fieldObj === "string"
         ? FIELDS.find((f) => f.key === fieldObj)
@@ -48,7 +43,6 @@ export default function SpellsAddOnPage() {
     <div className="p-6">
       <h1 className="text-xl font-bold mb-5">Spell Add-On Management</h1>
 
-      {/* 🔍 Search Input */}
       <div className="mb-4">
         <input
           type="text"
@@ -65,7 +59,7 @@ export default function SpellsAddOnPage() {
         onOpenModal={handleOpenModal}
         refresh={refresh}
         search={search}
-        fields={FIELDS} // ✅ optional (kalau kamu mau AddOnTable pakai ini)
+        fields={FIELDS} 
       />
 
       {selectedSpell && selectedField && (
