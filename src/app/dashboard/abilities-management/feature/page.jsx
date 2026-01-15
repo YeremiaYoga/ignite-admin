@@ -27,13 +27,13 @@ export default function FeatureManagementPage() {
 
         <div className="flex items-center gap-3">
           <button
-            // onClick={() => handleOpenImport("files")}
+            onClick={() => handleOpenImport("files")}
             className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm"
           >
             Mass Import JSON
           </button>
           <button
-            // onClick={() => handleOpenImport("body")}
+            onClick={() => handleOpenImport("body")}
             className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm"
           >
             Import JSON
